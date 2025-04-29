@@ -7,8 +7,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/living-room.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -42,8 +42,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/kitchen.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -77,8 +77,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/bathroom.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -112,8 +112,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/bedroom.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -142,29 +142,20 @@ const rooms = [
   },
 ];
 
-const warmOverlay= `linear-gradient(
+const coolOverlay = `linear-gradient(
     to bottom,
     rgba(141, 158, 247, 0.2),
     rgba(194, 197, 215, 0.1)
   )`;
 
-const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
-
-const setInitialOverlay = () => {
-  document.querySelector(
-    ".room"
-  ).style.backgroundImage = `url('${rooms[0].image}')`;
-
-  document.querySelector(".room").style.backgroundImage = `${
-    rooms[0].currTemp < 25 ? coolOverlay : warmOverlay
-  }, url('${rooms[0].image}')`;
-};
+const warmOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
 const setOverlay = (room) => {
   document.querySelector(".room").style.backgroundImage = `${
     room.currTemp < 25 ? coolOverlay : warmOverlay
   }, url('${room.image}')`;
 };
+setOverlay(rooms[0]);
 
 // Set svg accordingly
 const svgPoint = document.querySelector(".point");
@@ -197,13 +188,13 @@ let selectedRoom = rooms[0].name;
 // Set default temperature
 currentTemp.textContent = `${rooms[0].currTemp}°`;
 
-setInitialOverlay();
+// setInitialOverlay();
 
 document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
 // Add new options from rooms array
 rooms.forEach((room) => {
   const option = document.createElement("option");
-  option.value = room;
+  option.value = room.name;
   option.textContent = room.name;
   roomSelect.appendChild(option);
 });
@@ -232,57 +223,43 @@ roomSelect.addEventListener("change", function () {
   setSelectedRoom(selectedRoom);
 });
 
-
 // Set preset temperatures
 const defaultSettings = document.querySelector(".default-settings");
 defaultSettings.addEventListener("click", function (e) {});
 
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
-  const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const increaseRoomTemperature = room.increaseTemp;
-
-  if (room.currTemp < 32) {
-    increaseRoomTemperature();
-  }
-
-  setIndicatorPoint(room.currTemp);
-  currentTemp.textContent = `${room.currTemp}°`;
-
-  generateRooms();
-
-  setOverlay(room);
-
-  warmBtn.style.backgroundColor = "#d9d9d9";
-  coolBtn.style.backgroundColor = "#d9d9d9";
-
-  document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
+  changeTemperature("increase");
 });
 
 document.getElementById("reduce").addEventListener("click", () => {
+  changeTemperature("decrease");
+});
+const changeTemperature = (action) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const decreaseRoomTemperature = room.decreaseTemp;
 
-  if (room.currTemp > 10) {
-    decreaseRoomTemperature();
+  if (action === "increase" && room.currTemp < 32) {
+    room.increaseTemp();
+  } else if (action === "decrease" && room.currTemp > 10) {
+    room.decreaseTemp();
   }
+
 
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
-
   generateRooms();
-
   setOverlay(room);
 
   warmBtn.style.backgroundColor = "#d9d9d9";
   coolBtn.style.backgroundColor = "#d9d9d9";
 
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
-});
+};
+
+
 
 const coolBtn = document.getElementById("cool");
 const warmBtn = document.getElementById("warm");
-
 
 const inputsDiv = document.querySelector(".inputs");
 // Toggle preset inputs
@@ -398,7 +375,7 @@ const displayTime = (room) => {
         <span class="time">${room.endTime}</span>
       </div>
   `
-}
+};
 
 generateRooms();
 
