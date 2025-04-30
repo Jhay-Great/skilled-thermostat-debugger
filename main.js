@@ -529,52 +529,45 @@ const setupEventListeners = () => {
     document.querySelector(".error").style.display = "none";
   });
 
-  document.getElementById("save").addEventListener("click", () => {
-    const coolInput = document.getElementById("coolInput");
-    const warmInput = document.getElementById("warmInput");
-    const errorSpan = document.querySelector(".error");
-    
-    errorSpan.style.display = "none";
-    
-    // Validate inputs
-    if (!coolInput.value || !warmInput.value) {
-      errorSpan.style.display = "block";
-      errorSpan.textContent = "Please enter both temperatures";
-      return;
-    }
-    
-    const coolTemp = parseInt(coolInput.value);
-    const warmTemp = parseInt(warmInput.value);
-    
-  // Replace your current savePresets() error messages with:
-if (coolTemp < 10 || coolTemp > 24) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Invalid Temperature',
-    text: 'Cool preset must be between 10°-24°'
-  });
-  return;
-}
-    
-    if (coolTemp >= warmTemp) {
-      errorSpan.style.display = "block";
-      errorSpan.textContent = "Cool temp must be lower than warm temp";
-      return;
-    }
-    
-    // Save presets
-    const room = rooms.find((r) => r.name === selectedRoom);
-    room.setColdPreset(coolTemp);
-    room.setWarmPreset(warmTemp);
-    
-    // Reset inputs
-    coolInput.value = "";
-    warmInput.value = "";
-    document.querySelector(".inputs").classList.add("hidden");
-    
-    // Update UI
-    updatePresetButtonStates(room);
-  });
+ // BUG FIX: Proper temperature validation
+document.getElementById("save").addEventListener("click", () => {
+  const coolInput = document.getElementById("coolInput");
+  const warmInput = document.getElementById("warmInput");
+  const errorSpan = document.querySelector(".error");
+  
+  errorSpan.style.display = "none";
+  
+  if (!coolInput.value || !warmInput.value) {
+    errorSpan.style.display = "block";
+    errorSpan.textContent = "Please enter both temperatures";
+    return;
+  }
+  
+  const coolTemp = parseInt(coolInput.value);
+  const warmTemp = parseInt(warmInput.value);
+  
+  if (coolTemp < 10 || coolTemp > 24) {
+    errorSpan.style.display = "block";
+    errorSpan.textContent = "Cool preset must be between 10°-24°";
+    return;
+  }
+  
+  if (coolTemp >= warmTemp) {
+    errorSpan.style.display = "block";
+    errorSpan.textContent = "Cool temp must be lower than warm temp";
+    return;
+  }
+  
+  const room = rooms.find((r) => r.name === selectedRoom);
+  room.setColdPreset(coolTemp);
+  room.setWarmPreset(warmTemp);
+  
+  coolInput.value = "";
+  warmInput.value = "";
+  document.querySelector(".inputs").classList.add("hidden");
+  updatePresetButtonStates(room);
+});
+
 
   // Room controls delegation
   document.querySelector(".rooms-control").addEventListener("click", (e) => {
