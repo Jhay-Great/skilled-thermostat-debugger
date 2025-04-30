@@ -611,6 +611,22 @@ const smartTemperatureAI = {
 };
 
 
+// FEATURE: Text-to-speech
+function speak(text, priority = "low") {
+  if (window.speechSynthesis) {
+    const utterance = new SpeechSynthesisUtterance();
+    utterance.text = text;
+    utterance.volume = priority === "high" ? 1 : 0.7;
+    
+    const voices = speechSynthesis.getVoices();
+    utterance.voice = priority === "high" 
+      ? voices.find(v => v.name.includes("Google US English")) 
+      : voices.find(v => v.name.includes("Microsoft Hazel"));
+    
+    speechSynthesis.speak(utterance);
+  }
+}
+
 const init = () => {
   setInitialOverlay();
   populateRoomSelect();
