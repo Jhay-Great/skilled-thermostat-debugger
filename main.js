@@ -724,7 +724,7 @@ const init = () => {
   generateRooms();
   setupEventListeners();
   setInterval(checkSchedule, 60000);
-  setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
+  setInterval(smartTemperatureAI.applyAutoSettings, 0);
 };
 
 // Initialize the app
