@@ -683,6 +683,31 @@ function showAddRoomModal() {
     }
   });
 }
+// FEATURE: Room creation
+function showAddRoomModal() {
+  Swal.fire({
+    title: 'Add New Room',
+    html: `<input type="text" id="swal-room-name" class="swal2-input" placeholder="Room name" autofocus>`,
+    showCancelButton: true,
+    confirmButtonText: 'Add Room',
+    preConfirm: () => {
+      const name = document.getElementById('swal-room-name').value.trim();
+      if (!name) {
+        Swal.showValidationMessage('Please enter a room name');
+        return false;
+      }
+      if (rooms.some(r => r.name === name)) {
+        Swal.showValidationMessage('Room already exists');
+        return false;
+      }
+      return name;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      addNewRoom(result.value);
+    }
+  });
+}
 
 const init = () => {
   setInitialOverlay();
