@@ -213,17 +213,17 @@ rooms.forEach((room) => {
 const setSelectedRoom = (selectedRoom) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   setIndicatorPoint(room.currTemp);
-
-  //   set the current stats to current room temperature
   currentTemp.textContent = `${room.currTemp}°`;
-
-  // Set the current room image
   setOverlay(room);
-
-  // Set the current room name
   document.querySelector(".room-name").innerText = selectedRoom;
-
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
+
+  // Add AC status feedback
+  const statusText = room.airConditionerOn 
+    ? `${room.currTemp > 24 ? "Warming" : "Cooling"} room to ${room.currTemp}°`
+    : "AC is off";
+  document.querySelector(".room-status").style.display = room.airConditionerOn ? "block" : "none";
+  document.querySelector(".room-status").textContent = statusText;
 };
 
 roomSelect.addEventListener("change", function () {
@@ -418,11 +418,10 @@ generateRooms();
 
 document.querySelector(".rooms-control").addEventListener("click", (e) => {
   if (e.target.classList.contains("switch")) {
-    const room = rooms.find(
-      (room) => room.name === e.target.parentNode.parentNode.id
-    );
+    const room = rooms.find((room) => room.name === e.target.parentNode.parentNode.id);
     room.toggleAircon();
     generateRooms();
+    setSelectedRoom(room.name); // Force main view update
   }
 
   if (e.target.classList.contains("room-name")) {
