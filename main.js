@@ -148,13 +148,7 @@ const warmOverlay = `linear-gradient(
 const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
 // Initialize the application
-const init = () => {
-  setInitialOverlay();
-  populateRoomSelect();
-  generateRooms(); // This now includes time inputs
-  setupEventListeners();
-  setInterval(checkSchedule, 60000);
-};
+
 
 
 const setInitialOverlay = () => {
@@ -403,74 +397,10 @@ const formatDisplayTime = (timeStr) => {
 };
 
 // Add this function to handle room creation
-function showAddRoomModal() {
-  Swal.fire({
-    title: 'Add New Room',
-    html: `
-      <input 
-        type="text" 
-        id="swal-room-name" 
-        class="swal2-input" 
-        placeholder="Room name"
-        autofocus
-      >
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Add Room',
-    cancelButtonText: 'Cancel',
-    focusConfirm: false,
-    preConfirm: () => {
-      const name = document.getElementById('swal-room-name').value.trim();
-      if (!name) {
-        Swal.showValidationMessage('Please enter a room name');
-        return false;
-      }
-      if (rooms.some(r => r.name === name)) {
-        Swal.showValidationMessage('Room already exists');
-        return false;
-      }
-      return name;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      addNewRoom(result.value);
-    }
-  });
-}
+
 
 // Modified addNewRoom function
-function addNewRoom(name) {
-  const newRoom = {
-    name,
-    currTemp: 22,
-    coldPreset: 20,
-    warmPreset: 28,
-    image: "./assets/default.jpg",
-    airConditionerOn: false,
-    startTime: '08:00',
-    endTime: '22:00',
-    // Copy methods from existing rooms
-    setCurrTemp(temp) { this.currTemp = temp; },
-    decreaseTemp() { if (this.currTemp > 10) this.currTemp--; },
-    increaseTemp() { if (this.currTemp < 32) this.currTemp++; },
-    toggleAircon() { this.airConditionerOn = !this.airConditionerOn; }
-  };
 
-  rooms.push(newRoom);
-  
-  // Update UI
-  const option = new Option(name, name);
-  document.getElementById("rooms").appendChild(option);
-  generateRooms();
-  
-  // Confirmation
-  Swal.fire({
-    icon: 'success',
-    title: `${name} added!`,
-    showConfirmButton: false,
-    timer: 1500
-  });
-}
 
 // Update your event listener
 document.getElementById("add-room-btn").addEventListener("click", showAddRoomModal);
@@ -648,94 +578,29 @@ function updateMasterToggle() {
   }
 }
 // Add to main.js
-const smartTemperatureAI = {
-  predictOptimalTemp: (room, weatherData) => {
-    // AI considers:
-    // - Time of day (morning cooler, evening warmer)
-    // - Weather (colder outside → slightly warmer inside)
-    // - User habits (learns preferred temps at different times)
-    
-    const hour = new Date().getHours();
-    let baseTemp = 22; // Default
-    
-    // Time-based adjustment
-    if (hour >= 22 || hour <= 6) baseTemp = 20; // Night cooler
-    else if (hour >= 17) baseTemp = 23; // Evening warmer
-    
-    // Weather adjustment (mock external API)
-    if (weatherData?.isCold) baseTemp += 1;
-    if (weatherData?.isHot) baseTemp -= 1;
-    
-    return Math.min(Math.max(baseTemp, 18), 26); // Keep within safe range
-  },
-  
-  applyAutoSettings: () => {
-    rooms.forEach(room => {
-      const optimalTemp = this.predictOptimalTemp(room, { isCold: true });
-      room.setCurrTemp(optimalTemp);
-      room.airConditionerOn = true;
-    });
-    generateRooms();
-    speak("AI has adjusted temperatures for optimal comfort");
-  }
-};
 
 
 
-// Text-to-speech function
-function speak(text, priority = "low") {
-  if (window.speechSynthesis) {
-    const utterance = new SpeechSynthesisUtterance();
-    utterance.text = text;
-    utterance.volume = priority === "high" ? 1 : 0.7;
-    
-    // Different voices for notifications vs alerts
-    const voices = speechSynthesis.getVoices();
-    utterance.voice = priority === "high" 
-      ? voices.find(v => v.name.includes("Google US English")) 
-      : voices.find(v => v.name.includes("Microsoft Hazel"));
-    
-    speechSynthesis.speak(utterance);
-  }
-}
+
+
 
 // Call when important events happen:
 // speak("Living room has reached 22 degrees", "high");
 // Sound control
-const audioControl = {
-  play: (type) => {
-    const sounds = {
-      'ac': document.getElementById('acSound'),
-      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3')
-    };
-    
-    if (sounds[type]) {
-      sounds[type].currentTime = 0;
-      sounds[type].play();
-    }
-  },
-  
-  stop: () => {
-    document.getElementById('acSound').pause();
-  }
-};
+
 
 // Play when AC turns on
-rooms.forEach(room => {
-  const originalToggle = room.toggleAircon;
-  room.toggleAircon = function() {
-    originalToggle.apply(this);
-    if (this.airConditionerOn) {
-      audioControl.play('ac');
-      speak(`${this.name} air conditioning activated`);
-    } else {
-      audioControl.stop();
-    }
-  };
-});
+
 
 // Run every 30 minutes
-setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
+
+const init = () => {
+  setInitialOverlay();
+  populateRoomSelect();
+  generateRooms();
+  setupEventListeners();
+  setInterval(checkSchedule, 60000);
+};
 
 // Initialize the app
 document.addEventListener("DOMContentLoaded", init);
