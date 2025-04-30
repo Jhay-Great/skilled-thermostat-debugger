@@ -683,31 +683,40 @@ function showAddRoomModal() {
     }
   });
 }
-// FEATURE: Room creation
-function showAddRoomModal() {
+// FEATURE: New room addition
+function addNewRoom(name) {
+  const newRoom = {
+    name,
+    currTemp: 22,
+    coldPreset: 20,
+    warmPreset: 28,
+    image: "./assets/default.jpg",
+    airConditionerOn: false,
+    startTime: '08:00',
+    endTime: '22:00',
+    setCurrTemp(temp) { this.currTemp = temp; },
+    decreaseTemp() { if (this.currTemp > 10) this.currTemp--; },
+    increaseTemp() { if (this.currTemp < 32) this.currTemp++; },
+    toggleAircon() { this.airConditionerOn = !this.airConditionerOn; }
+  };
+
+  rooms.push(newRoom);
+  
+  const option = new Option(name, name);
+  document.getElementById("rooms").appendChild(option);
+  generateRooms();
+  
   Swal.fire({
-    title: 'Add New Room',
-    html: `<input type="text" id="swal-room-name" class="swal2-input" placeholder="Room name" autofocus>`,
-    showCancelButton: true,
-    confirmButtonText: 'Add Room',
-    preConfirm: () => {
-      const name = document.getElementById('swal-room-name').value.trim();
-      if (!name) {
-        Swal.showValidationMessage('Please enter a room name');
-        return false;
-      }
-      if (rooms.some(r => r.name === name)) {
-        Swal.showValidationMessage('Room already exists');
-        return false;
-      }
-      return name;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      addNewRoom(result.value);
-    }
+    icon: 'success',
+    title: `${name} added!`,
+    showConfirmButton: false,
+    timer: 1500
   });
 }
+
+// FEATURE: Automatic adjustments
+setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
+
 
 const init = () => {
   setInitialOverlay();
