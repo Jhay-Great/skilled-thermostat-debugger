@@ -213,17 +213,17 @@ rooms.forEach((room) => {
 const setSelectedRoom = (selectedRoom) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   setIndicatorPoint(room.currTemp);
-  currentTemp.textContent = `${room.currTemp}°`;
-  setOverlay(room);
-  document.querySelector(".room-name").innerText = selectedRoom;
-  document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 
-  // Add AC status feedback
-  const statusText = room.airConditionerOn 
-    ? `${room.currTemp > 24 ? "Warming" : "Cooling"} room to ${room.currTemp}°`
-    : "AC is off";
-  document.querySelector(".room-status").style.display = room.airConditionerOn ? "block" : "none";
-  document.querySelector(".room-status").textContent = statusText;
+  //   set the current stats to current room temperature
+  currentTemp.textContent = `${room.currTemp}°`;
+
+  // Set the current room image
+  setOverlay(room);
+
+  // Set the current room name
+  document.querySelector(".room-name").innerText = selectedRoom;
+
+  document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 };
 
 roomSelect.addEventListener("change", function () {
@@ -287,15 +287,9 @@ const warmBtn = document.getElementById("warm");
 const inputsDiv = document.querySelector(".inputs");
 // Toggle preset inputs
 document.getElementById("newPreset").addEventListener("click", () => {
-  const room = rooms.find((room) => room.name === selectedRoom);
-  if (!room) return;
-
-  // Pre-fill current presets
-  document.getElementById("coolInput").value = room.coldPreset;
-  document.getElementById("warmInput").value = room.warmPreset;
-  document.querySelector(".error").style.display = "none"; // Reset error
-
-  inputsDiv.classList.remove("hidden");
+  if (inputsDiv.classList.contains("hidden")) {
+    inputsDiv.classList.remove("hidden");
+  }
 });
 
 // close inputs
@@ -308,36 +302,30 @@ document.getElementById("save").addEventListener("click", () => {
   const coolInput = document.getElementById("coolInput");
   const warmInput = document.getElementById("warmInput");
   const errorSpan = document.querySelector(".error");
-  let isValid = true;
+  errorSpan.style.display = "none";
 
-  if (coolInput.value && warmInput.value) {
-    // Reset error
-    errorSpan.style.display = "none";
+  const coolTemp = Number(coolInput.value);
+  const warmTemp = Number(warmInput.value);
 
-    // Validate cool preset (10-24°C)
-    if (coolInput.value < 10 || coolInput.value > 24) {
-      errorSpan.style.display = "block";
-      errorSpan.innerText = "Cool preset must be between 10° and 24°";
-      isValid = false;
-    }
-
-    // Validate warm preset (25-32°C)
-    if (warmInput.value < 25 || warmInput.value > 32) {
-      errorSpan.style.display = "block";
-      errorSpan.innerText = "Warm preset must be between 25° and 32°";
-      isValid = false;
-    }
-
-    // Only save if valid
-    if (isValid) {
-      const currRoom = rooms.find((room) => room.name === selectedRoom);
-      currRoom.setColdPreset(Number(coolInput.value));
-      currRoom.setWarmPreset(Number(warmInput.value));
-      coolInput.value = "";
-      warmInput.value = "";
-      inputsDiv.classList.add("hidden"); // Close modal after save
-    }
+  // Validate ranges (cool: 10-24°C, warm: 25-32°C)
+  if (coolTemp < 10 || coolTemp > 24 || warmTemp < 25 || warmTemp > 32) {
+    errorSpan.textContent = "Cool: 10-24°C | Warm: 25-32°C";
+    errorSpan.style.display = "block";
+    return;
   }
+
+  // Ensure coolTemp < warmTemp
+  if (coolTemp >= warmTemp) {
+    errorSpan.textContent = "Cool preset must be lower than Warm preset";
+    errorSpan.style.display = "block";
+    return;
+  }
+
+  // Save if valid
+  const currRoom = rooms.find((room) => room.name === selectedRoom);
+  currRoom.setColdPreset(coolTemp);
+  currRoom.setWarmPreset(warmTemp);
+  inputsDiv.classList.add("hidden"); // Close modal
 });
 
 // Rooms Control
@@ -418,10 +406,11 @@ generateRooms();
 
 document.querySelector(".rooms-control").addEventListener("click", (e) => {
   if (e.target.classList.contains("switch")) {
-    const room = rooms.find((room) => room.name === e.target.parentNode.parentNode.id);
+    const room = rooms.find(
+      (room) => room.name === e.target.parentNode.parentNode.id
+    );
     room.toggleAircon();
     generateRooms();
-    setSelectedRoom(room.name); // Force main view update
   }
 
   if (e.target.classList.contains("room-name")) {
