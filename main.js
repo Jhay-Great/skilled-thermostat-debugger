@@ -583,15 +583,33 @@ function updateMasterToggle() {
 
 
 
-// Call when important events happen:
-// speak("Living room has reached 22 degrees", "high");
-// Sound control
+// new functionalities and new features added by me;
+// FEATURE: Smart Temperature AI
+const smartTemperatureAI = {
+  predictOptimalTemp: (room, weatherData) => {
+    const hour = new Date().getHours();
+    let baseTemp = 22;
+    
+    if (hour >= 22 || hour <= 6) baseTemp = 20;
+    else if (hour >= 17) baseTemp = 23;
+    
+    if (weatherData?.isCold) baseTemp += 1;
+    if (weatherData?.isHot) baseTemp -= 1;
+    
+    return Math.min(Math.max(baseTemp, 18), 26);
+  },
+  
+  applyAutoSettings: () => {
+    rooms.forEach(room => {
+      const optimalTemp = this.predictOptimalTemp(room, { isCold: true });
+      room.setCurrTemp(optimalTemp);
+      room.airConditionerOn = true;
+    });
+    generateRooms();
+    speak("AI has adjusted temperatures for optimal comfort");
+  }
+};
 
-
-// Play when AC turns on
-
-
-// Run every 30 minutes
 
 const init = () => {
   setInitialOverlay();
