@@ -626,6 +626,24 @@ function speak(text, priority = "low") {
     speechSynthesis.speak(utterance);
   }
 }
+// FEATURE: Audio control
+const audioControl = {
+  play: (type) => {
+    const sounds = {
+      'ac': document.getElementById('acSound'),
+      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3')
+    };
+    
+    if (sounds[type]) {
+      sounds[type].currentTime = 0;
+      sounds[type].play();
+    }
+  },
+  
+  stop: () => {
+    document.getElementById('acSound').pause();
+  }
+};
 
 const init = () => {
   setInitialOverlay();
