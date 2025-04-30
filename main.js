@@ -644,6 +644,20 @@ const audioControl = {
     document.getElementById('acSound').pause();
   }
 };
+// FEATURE: Enhanced AC toggle with audio
+rooms.forEach(room => {
+  const originalToggle = room.toggleAircon;
+  room.toggleAircon = function() {
+    originalToggle.apply(this);
+    if (this.airConditionerOn) {
+      audioControl.play('ac');
+      speak(`${this.name} air conditioning activated`);
+    } else {
+      audioControl.stop();
+    }
+  };
+});
+
 
 const init = () => {
   setInitialOverlay();
