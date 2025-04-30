@@ -302,27 +302,35 @@ document.getElementById("save").addEventListener("click", () => {
   const coolInput = document.getElementById("coolInput");
   const warmInput = document.getElementById("warmInput");
   const errorSpan = document.querySelector(".error");
+  let isValid = true;
 
   if (coolInput.value && warmInput.value) {
-    // Validate the data
-    if (coolInput.value < 10 || coolInput.value > 25) {
+    // Reset error
+    errorSpan.style.display = "none";
+
+    // Validate cool preset (10-24°C)
+    if (coolInput.value < 10 || coolInput.value > 24) {
       errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
+      errorSpan.innerText = "Cool preset must be between 10° and 24°";
+      isValid = false;
     }
 
+    // Validate warm preset (25-32°C)
     if (warmInput.value < 25 || warmInput.value > 32) {
       errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
+      errorSpan.innerText = "Warm preset must be between 25° and 32°";
+      isValid = false;
     }
-    // Validation passed
-    // Set current room's presets
-    const currRoom = rooms.find((room) => room.name === selectedRoom);
 
-    currRoom.setColdPreset(coolInput.value);
-    currRoom.setWarmPreset(warmInput.value);
-
-    coolInput.value = "";
-    warmInput.value = "";
+    // Only save if valid
+    if (isValid) {
+      const currRoom = rooms.find((room) => room.name === selectedRoom);
+      currRoom.setColdPreset(Number(coolInput.value));
+      currRoom.setWarmPreset(Number(warmInput.value));
+      coolInput.value = "";
+      warmInput.value = "";
+      inputsDiv.classList.add("hidden"); // Close modal after save
+    }
   }
 });
 
