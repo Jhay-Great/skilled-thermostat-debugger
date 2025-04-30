@@ -632,6 +632,7 @@ acPowerToggle.addEventListener('change', function() {
   generateRooms();
 });
 
+// BUG FIX: Proper master toggle state
 function updateMasterToggle() {
   const allOn = rooms.every(room => room.airConditionerOn);
   const allOff = rooms.every(room => !room.airConditionerOn);
@@ -643,7 +644,6 @@ function updateMasterToggle() {
     acPowerToggle.checked = false;
     statusIndicator.classList.remove('active');
   } else {
-    // Indeterminate state (some on, some off)
     acPowerToggle.indeterminate = true;
   }
 }
