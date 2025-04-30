@@ -300,6 +300,7 @@ function convertTimeToMinutes(timeString) {
   return hours * 60 + minutes;
 }
 
+// BUG FIX: Proper schedule checking
 function checkSchedule() {
   const now = new Date();
   const currentMinutesTotal = now.getHours() * 60 + now.getMinutes();
@@ -308,15 +309,11 @@ function checkSchedule() {
     const startMinutes = convertTimeToMinutes(room.startTime);
     const endMinutes = convertTimeToMinutes(room.endTime);
     
-    // Check if current time is within scheduled range
     const shouldBeOn = currentMinutesTotal >= startMinutes && 
                       currentMinutesTotal <= endMinutes;
     
-    // Only toggle if needed to prevent unnecessary updates
     if (shouldBeOn && !room.airConditionerOn) {
       room.airConditionerOn = true;
-      room.setCurrTemp(room.currTemp > 24 ? room.coldPreset : room.warmPreset);
-      // Apply the appropriate temperature based on current temp
       if (room.currTemp > 25) {
         room.setCurrTemp(room.coldPreset);
       } else {
@@ -329,7 +326,6 @@ function checkSchedule() {
 
   generateRooms();
   
-  // Update the UI for the currently selected room
   const currentRoom = rooms.find(r => r.name === selectedRoom);
   if (currentRoom) {
     updateRoomUI(currentRoom);
