@@ -31,7 +31,17 @@
       <div class="container animate__animated animate__fadeInUp">
         <div class="top-content">
           <h1 class="logo">Thermostat</h1>
-          <select id="rooms"></select>
+          <select id="rooms">
+            
+          </select>
+          <button  id="add-room-btn">
+            add new room
+          </button>
+          <!-- Add to HTML -->
+
+<audio id="acSound" loop>
+  <!-- <source src="./assets/Aylex - Last Summer (freetouse.com).mp3" type="audio/mpeg"> -->
+</audio>
         </div>
         <!-- Interior card -->
         <div class="room">
@@ -118,13 +128,38 @@
           </div>
         </div>
       </div>
+      <div class="toggle-wrapper">
 
-      <div
+        <div
         class="container rooms-control animate__animated animate__fadeIn"
-      ></div>
+        >
+        
+      </div>
+      <div class="toggle-container">
+        <span>AC Power:</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ac-power-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="status-indicator"></span>
+      </div>
     </div>
-
+    
+  </div>
+  <div class="modal hidden" id="addRoomModal">
+    <div class="modal-content">
+      <h3>Add New Room</h3>
+    <input type="text" id="newRoomName" placeholder="Room name">
+    <button id="confirmAddRoom">Add</button>
+    <button id="cancelAddRoom">Cancel</button>
+    </div>
+  </div>
     <!-- Ionicons -->
+     <!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script
       type="module"
       src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
