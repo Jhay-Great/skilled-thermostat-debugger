@@ -585,30 +585,7 @@ function updateMasterToggle() {
 
 // new functionalities and new features added by me;
 // FEATURE: Smart Temperature AI
-const smartTemperatureAI = {
-  predictOptimalTemp: (room, weatherData) => {
-    const hour = new Date().getHours();
-    let baseTemp = 22;
-    
-    if (hour >= 22 || hour <= 6) baseTemp = 20;
-    else if (hour >= 17) baseTemp = 23;
-    
-    if (weatherData?.isCold) baseTemp += 1;
-    if (weatherData?.isHot) baseTemp -= 1;
-    
-    return Math.min(Math.max(baseTemp, 18), 26);
-  },
-  
-  applyAutoSettings: () => {
-    rooms.forEach(room => {
-      const optimalTemp = this.predictOptimalTemp(room, { isCold: true });
-      room.setCurrTemp(optimalTemp);
-      room.airConditionerOn = true;
-    });
-    generateRooms();
-    speak("AI has adjusted temperatures for optimal comfort");
-  }
-};
+
 
 
 // FEATURE: Text-to-speech
@@ -714,8 +691,7 @@ function addNewRoom(name) {
   });
 }
 
-// FEATURE: Automatic adjustments
-setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
+
 
 
 const init = () => {
@@ -724,7 +700,6 @@ const init = () => {
   generateRooms();
   setupEventListeners();
   setInterval(checkSchedule, 60000);
-  setInterval(smartTemperatureAI.applyAutoSettings, 0);
 };
 
 // Initialize the app
