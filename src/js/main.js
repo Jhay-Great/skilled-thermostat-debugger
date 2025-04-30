@@ -63,7 +63,8 @@ document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
 // Add new options from rooms array
 rooms.forEach((room) => {
   const option = document.createElement("option");
-  option.value = room;
+  // option.value = room;
+  option.value = room.name;
   option.textContent = room.name;
   roomSelect.appendChild(option);
 });
@@ -100,10 +101,11 @@ defaultSettings.addEventListener("click", function (e) {});
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const increaseRoomTemperature = room.increaseTemp;
+  // const increaseRoomTemperature = room.increaseTemp;
 
   if (room.currTemp < 32) {
-    increaseRoomTemperature();
+    // increaseRoomTemperature();
+    room.increaseTemp()
   }
 
   setIndicatorPoint(room.currTemp);
@@ -113,18 +115,22 @@ document.getElementById("increase").addEventListener("click", () => {
 
   setOverlay(room);
 
-  warmBtn.style.backgroundColor = "#d9d9d9";
+  warmBtn.classList.add("show-warmth");
   coolBtn.style.backgroundColor = "#d9d9d9";
 
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 });
 
+
+
 document.getElementById("reduce").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const decreaseRoomTemperature = room.decreaseTemp;
+
+  // const decreaseRoomTemperature = room.decreaseTemp;
 
   if (room.currTemp > 10) {
-    decreaseRoomTemperature();
+    // decreaseRoomTemperature();
+    room.decreaseTemp();
   }
 
   setIndicatorPoint(room.currTemp);

@@ -365,6 +365,14 @@ svg.point {
   background-color: #ffae33;
 }
 
+#warm.show-warmth {
+ background-color: var(--cool-blue);
+}
+#cool.show-coldness {
+  background-color: var(--cool-blue);
+}
+
+
 .time {
   padding-left: 10px; /* Add spacing between times */
 }
