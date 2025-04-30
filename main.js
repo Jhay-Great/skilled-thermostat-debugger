@@ -287,9 +287,15 @@ const warmBtn = document.getElementById("warm");
 const inputsDiv = document.querySelector(".inputs");
 // Toggle preset inputs
 document.getElementById("newPreset").addEventListener("click", () => {
-  if (inputsDiv.classList.contains("hidden")) {
-    inputsDiv.classList.remove("hidden");
-  }
+  const room = rooms.find((room) => room.name === selectedRoom);
+  if (!room) return;
+
+  // Pre-fill current presets
+  document.getElementById("coolInput").value = room.coldPreset;
+  document.getElementById("warmInput").value = room.warmPreset;
+  document.querySelector(".error").style.display = "none"; // Reset error
+
+  inputsDiv.classList.remove("hidden");
 });
 
 // close inputs
