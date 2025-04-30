@@ -403,7 +403,6 @@ const formatDisplayTime = (timeStr) => {
 
 
 // Update your event listener
-document.getElementById("add-room-btn").addEventListener("click", showAddRoomModal);
 
 
 const isValidTime = (timeStr) => {
