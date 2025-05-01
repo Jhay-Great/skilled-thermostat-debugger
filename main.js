@@ -31,9 +31,18 @@ const initializeRooms = () => {
     increaseTemp() {
       this.currTemp++;
     },
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-    },
+   // Modify the toggleAircon method in room objects
+// In your room objects:
+toggleAircon() {
+  this.airConditionerOn = !this.airConditionerOn;
+  
+  
+  // Audio feedback
+  speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+  
+  // Update master control
+  updateMasterToggle();
+}
   },
   {
     name: "Kitchen",
@@ -66,7 +75,14 @@ const initializeRooms = () => {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
   {
     name: "Bathroom",
@@ -99,7 +115,14 @@ const initializeRooms = () => {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
   {
     name: "Bedroom",
@@ -132,7 +155,14 @@ const initializeRooms = () => {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
 ];
 };
@@ -358,7 +388,7 @@ roomsHTML += `
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
-  updateMasterToggle();
+  updateMaster();
 };
 const setupTimeInputListeners = () => {
   document.querySelectorAll('.time-input').forEach(input => {
@@ -502,22 +532,26 @@ document.getElementById("save").addEventListener("click", () => {
 
   // Room controls delegation
   document.querySelector(".rooms-control").addEventListener("click", (e) => {
-    const roomControl = e.target.closest(".room-control");
-    if (!roomControl) return;
-    
-    const roomName = roomControl.id;
-    
-    // Power button
-    if (e.target.closest(".switch")) {
-      const room = rooms.find((r) => r.name === roomName);
-      room.toggleAircon();
-      generateRooms();
+    // Handle power button clicks
+    const powerButton = e.target.closest('.switch');
+    if (powerButton) {
+      const roomElement = powerButton.closest('.room-control');
+      const roomName = roomElement.id;
+      const room = rooms.find(r => r.name === roomName);
+      
+      if (room) {
+        room.toggleAircon();
+        updateRoomUI(room); // Update just this room's UI
+        updateMasterToggle();
+      }
+      return;
     }
-    
-    // Room name click
-    if (e.target.classList.contains("room-name")) {
+  
+    // Handle room name clicks (for selection)
+    const roomNameElement = e.target.closest('.room-name');
+    if (roomNameElement) {
+      const roomName = roomNameElement.textContent.split(' - ')[0];
       setSelectedRoom(roomName);
-      document.getElementById("rooms").value = roomName;
     }
   });
 
@@ -587,7 +621,30 @@ function updateMasterToggle() {
 
 // new functionalities and new features added by me;
 // FEATURE: Smart Temperature AI
-
+const smartTemperatureAI = {
+  predictOptimalTemp: (room, weatherData) => {
+    const hour = new Date().getHours();
+    let baseTemp = 22;
+    
+    if (hour >= 22 || hour <= 6) baseTemp = 20;
+    else if (hour >= 17) baseTemp = 23;
+    
+    if (weatherData?.isCold) baseTemp += 1;
+    if (weatherData?.isHot) baseTemp -= 1;
+    
+    return Math.min(Math.max(baseTemp, 18), 26);
+  },
+  
+  applyAutoSettings: () => {
+    rooms.forEach(room => {
+      const optimalTemp = this.predictOptimalTemp(room, { isCold: true });
+      room.setCurrTemp(optimalTemp);
+      room.airConditionerOn = true;
+    });
+    generateRooms();
+    speak("AI has adjusted temperatures for optimal comfort");
+  }
+};
 
 
 // FEATURE: Text-to-speech
@@ -694,7 +751,8 @@ function addNewRoom(name) {
   });
 }
 
-
+// FEATURE: Automatic adjustments
+setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
 
 
 const init = () => {
