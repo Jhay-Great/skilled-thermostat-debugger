@@ -382,8 +382,7 @@ svg.point {
     width: 320px;
   }
 }
-
-.powerOn {
+powerOn {
   color: #ffae33;
 }
 
@@ -459,6 +458,12 @@ input:checked + .toggle-slider:before {
   right: 25px;
   bottom: 20px;
   z-index: 30;
+}
+.status-indicator.active{
+  background: red;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
 }
 .time-input {
   width: 80px;

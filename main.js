@@ -567,15 +567,17 @@ document.getElementById("save").addEventListener("click", () => {
   });
 };
 
+
 const acPowerToggle = document.getElementById('ac-power-toggle');
 const statusIndicator = document.querySelector('.status-indicator');
     
 acPowerToggle.addEventListener('change', function() {
   // Add animation
   const slider = this.nextElementSibling;
+  console.log(slider)
   slider.classList.add('animate-pulse');
   setTimeout(() => slider.classList.remove('animate-pulse'), 300);
-  
+  console.log(this)
   // Update status indicator
   if (this.checked) {
     statusIndicator.classList.add('active');
@@ -594,6 +596,8 @@ acPowerToggle.addEventListener('change', function() {
   // Update room controls
   generateRooms();
 });
+ 
+
 
 // BUG FIX: Proper master toggle state
 function updateMasterToggle() {
