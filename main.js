@@ -386,7 +386,7 @@ roomsHTML += `
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
-  updateMaster();
+  updateMasterToggle();
 };
 const setupTimeInputListeners = () => {
   document.querySelectorAll('.time-input').forEach(input => {
@@ -732,6 +732,7 @@ const init = () => {
   generateRooms();
   setupEventListeners();
   setInterval(checkSchedule, 60000);
+  updateMasterToggle();
 };
 
 // Initialize the app
