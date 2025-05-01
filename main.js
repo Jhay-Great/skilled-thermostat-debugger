@@ -588,14 +588,12 @@ acPowerToggle.addEventListener('change', function() {
       rooms.forEach((room, index) => {
         setTimeout(() => {
           if (room.airConditionerOn) {
-            audioControl.play('ac'); // Or use room-specific sounds
           }
         }, index * 300); // 300ms between each
       });
       
       // Play completion sound after all rooms
       setTimeout(() => {
-        audioControl.play('complete');
       }, rooms.length * 300);
     }, 1000); // Initial 1 second delay
     
@@ -606,7 +604,7 @@ acPowerToggle.addEventListener('change', function() {
       if (room.airConditionerOn) room.toggleAircon();
     });
     generateRooms();
-    audioControl.stop(); // Stop any playing sounds
+   ; // Stop any playing sounds
   }
 });
 
@@ -652,40 +650,15 @@ function speak(text, priority = "low") {
     speechSynthesis.speak(utterance);
   }
 }
-// FEATURE: Audio control
-const audioControl = {
-  play: (type) => {
-    const sounds = {
-      'ac': document.getElementById('acSound'),
-      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3'),
-      'complete': new Audio('../assets/complete-chime.mp3') // Add this file
-    };
-    
-    if (sounds[type]) {
-      sounds[type].currentTime = 0;
-      sounds[type].play();
-    }
-  },
-  
-  stop: () => {
-    document.getElementById('acSound').pause();
-  },
-  
-  playDelayed: async (type, delayMs = 1000) => {
-    await new Promise(resolve => setTimeout(resolve, delayMs));
-    audioControl.play(type);
-  }
-};
+
 // FEATURE: Enhanced AC toggle with audio
 rooms.forEach(room => {
   const originalToggle = room.toggleAircon;
   room.toggleAircon = function() {
     originalToggle.apply(this);
     if (this.airConditionerOn) {
-      audioControl.play('ac');
       speak(`${this.name} air conditioning activated`);
     } else {
-      audioControl.stop();
     }
   };
 });
