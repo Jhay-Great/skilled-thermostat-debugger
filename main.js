@@ -638,7 +638,7 @@ const init = () => {
   populateRoomSelect();
   generateRooms();
   setupEventListeners();
-  setInterval(checkSchedule, 60000);
+  setInterval(checkSchedule, 0);
 };
 
 // Initialize the app
