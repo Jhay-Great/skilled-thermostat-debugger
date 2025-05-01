@@ -32,16 +32,16 @@ const initializeRooms = () => {
       this.currTemp++;
     },
    // Modify the toggleAircon method in room objects
-// In your initializeRooms() function, ensure all rooms have this toggle method:
+// In your room objects:
 toggleAircon() {
   this.airConditionerOn = !this.airConditionerOn;
-  if (this.airConditionerOn) {
-    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
-    speak(`${action} ${this.name} to ${this.currTemp}°`);
-  } else {
-    speak(`${this.name} air conditioning turned off`);
-  }
-  generateRooms(); // Force UI update
+  
+  
+  // Audio feedback
+  speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+  
+  // Update master control
+  updateMasterToggle();
 }
   },
   {
@@ -75,7 +75,14 @@ toggleAircon() {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
   {
     name: "Bathroom",
@@ -108,7 +115,14 @@ toggleAircon() {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
   {
     name: "Bedroom",
@@ -141,7 +155,14 @@ toggleAircon() {
     },
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
-    },
+      
+      
+      // Audio feedback
+      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
+      
+      // Update master control
+      updateMasterToggle();
+    }
   },
 ];
 };
@@ -337,21 +358,34 @@ function checkSchedule() {
 
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
-  roomsControlContainer.innerHTML = rooms.map(room => `
-    <div class="room-control" id="${room.name}">
-      <div class="top">
-        <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
-        <button class="switch">
-          <ion-icon name="power-outline" 
-            class="${room.airConditionerOn ? "powerOn" : ""}"
-            style="color: ${room.airConditionerOn ? "#2ecc71" : "#e74c3c"}">
-          </ion-icon>
-        </button>
-      </div>
-      <!-- Rest of your room HTML -->
+  let roomsHTML = "";
+
+  rooms.forEach((room) => {
+   // In generateRooms() function:
+roomsHTML += `
+<div class="room-control" id="${room.name}">
+  <div class="top">
+    <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
+    <button class="switch">
+      <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
+    </button>
+  </div>
+  <div class="time-display">
+    <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
+           value="${room.startTime}" step="3600">
+    <div class="bars">
+      ${Array(32).fill('<span class="bar"></span>').join('')}
     </div>
-  `).join('');
-  
+    <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
+           value="${room.endTime}">
+  </div>
+  <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
+    ${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${room.currTemp}°
+  </span>
+</div>`;
+  });
+
+  roomsControlContainer.innerHTML = roomsHTML;
   updateMasterToggle();
 };
 const setupTimeInputListeners = () => {
@@ -495,21 +529,29 @@ document.getElementById("save").addEventListener("click", () => {
 
 
   // Room controls delegation
- // Replace your existing event listener with this:
-document.querySelector(".rooms-control").addEventListener("click", (e) => {
-  const switchButton = e.target.closest(".switch");
-  if (!switchButton) return;
+  document.querySelector(".rooms-control").addEventListener("click", (e) => {
+    // Handle power button clicks
+    const powerButton = e.target.closest('.switch');
+    if (powerButton) {
+      const roomElement = powerButton.closest('.room-control');
+      const roomName = roomElement.id;
+      const room = rooms.find(r => r.name === roomName);
+      
+      if (room) {
+        room.toggleAircon();
+        updateRoomUI(room); // Update just this room's UI
+        updateMasterToggle();
+      }
+      return;
+    }
   
-  const roomControl = switchButton.closest(".room-control");
-  const roomName = roomControl.id;
-  const room = rooms.find((r) => r.name === roomName);
-  
-  if (room) {
-    room.toggleAircon();
-    // Update master toggle state
-    updateMasterToggle();
-  }
-});
+    // Handle room name clicks (for selection)
+    const roomNameElement = e.target.closest('.room-name');
+    if (roomNameElement) {
+      const roomName = roomNameElement.textContent.split(' - ')[0];
+      setSelectedRoom(roomName);
+    }
+  });
 
   // Time input changes
   document.querySelector(".rooms-control").addEventListener("change", (e) => {
@@ -529,25 +571,29 @@ const acPowerToggle = document.getElementById('ac-power-toggle');
 const statusIndicator = document.querySelector('.status-indicator');
     
 acPowerToggle.addEventListener('change', function() {
-  const turnOn = this.checked;
+  // Add animation
+  const slider = this.nextElementSibling;
+  slider.classList.add('animate-pulse');
+  setTimeout(() => slider.classList.remove('animate-pulse'), 300);
   
-  rooms.forEach(room => {
-    if (room.airConditionerOn !== turnOn) {
-      room.airConditionerOn = turnOn;
-      speak(`${room.name} turned ${turnOn ? 'on' : 'off'}`);
-    }
-  });
+  // Update status indicator
+  if (this.checked) {
+    statusIndicator.classList.add('active');
+    // Turn on all ACs
+    rooms.forEach(room => {
+      if (!room.airConditionerOn) room.toggleAircon();
+    });
+  } else {
+    statusIndicator.classList.remove('active');
+    // Turn off all ACs
+    rooms.forEach(room => {
+      if (room.airConditionerOn) room.toggleAircon();
+    });
+  }
   
+  // Update room controls
   generateRooms();
 });
-
-function updateMasterToggle() {
-  const allOn = rooms.every(room => room.airConditionerOn);
-  const allOff = rooms.every(room => !room.airConditionerOn);
-  
-  acPowerToggle.checked = allOn;
-  acPowerToggle.indeterminate = !allOn && !allOff;
-}
 
 // BUG FIX: Proper master toggle state
 function updateMasterToggle() {
@@ -591,20 +637,49 @@ function speak(text, priority = "low") {
 }
 // FEATURE: Audio control
 const audioControl = {
-  play: (type) => {
-    const sounds = {
-      'ac': document.getElementById('acSound'),
-      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3')
-    };
-    
-    if (sounds[type]) {
-      sounds[type].currentTime = 0;
-      sounds[type].play();
+  audioContext: null,
+  currentSounds: new Map(), // Track sounds by room
+
+  init() {
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  },
+
+  async loadSound(roomName) {
+    try {
+      const response = await fetch(`./assets/audio/${roomName.toLowerCase().replace(' ', '-')}.mp3`);
+      const arrayBuffer = await response.arrayBuffer();
+      return await this.audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error(`Error loading sound for ${roomName}:`, error);
+      return null;
     }
   },
-  
-  stop: () => {
-    document.getElementById('acSound').pause();
+
+  async play(roomName) {
+    await this.stop(roomName); // Stop any existing sound for this room
+    
+    const audioBuffer = await this.loadSound(roomName);
+    if (!audioBuffer) return;
+
+    const source = this.audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(this.audioContext.destination);
+    source.start(0);
+    
+    this.currentSounds.set(roomName, source);
+  },
+
+  async stop(roomName) {
+    const source = this.currentSounds.get(roomName);
+    if (source) {
+      source.stop();
+      this.currentSounds.delete(roomName);
+    }
+  },
+
+  async stopAll() {
+    this.currentSounds.forEach(source => source.stop());
+    this.currentSounds.clear();
   }
 };
 // FEATURE: Enhanced AC toggle with audio
