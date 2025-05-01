@@ -31,16 +31,9 @@ const initializeRooms = () => {
     increaseTemp() {
       this.currTemp++;
     },
-  // Modify the toggleAircon method in room objects
-toggleAircon() {
-  this.airConditionerOn = !this.airConditionerOn;
-  if (this.airConditionerOn) {
-    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
-    speak(`${action} ${this.name} to ${this.currTemp}°`);
-  } else {
-    speak(`${this.name} air conditioning turned off`);
-  }
-}
+    toggleAircon() {
+      this.airConditionerOn = !this.airConditionerOn;
+    },
   },
   {
     name: "Kitchen",
