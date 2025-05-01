@@ -139,14 +139,16 @@ const initializeRooms = () => {
 const rooms = initializeRooms();
 
 
-const warmOverlay = `linear-gradient(
+const warmOverlay =`linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
+
+
+
+
+const coolOverlay =`linear-gradient(
     to bottom,
     rgba(141, 158, 247, 0.2),
     rgba(194, 197, 215, 0.1)
   )`;
-
-const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
-
 // Initialize the application
 
 
