@@ -31,18 +31,16 @@ const initializeRooms = () => {
     increaseTemp() {
       this.currTemp++;
     },
-   // Modify the toggleAircon method in room objects
-// In your room objects:
-toggleAircon() {
-  this.airConditionerOn = !this.airConditionerOn;
-  
-  
-  // Audio feedback
-  speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
-  
-  // Update master control
-  updateMasterToggle();
-}
+    toggleAircon() {
+      this.airConditionerOn = !this.airConditionerOn;
+      if (this.airConditionerOn) {
+        const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+        speak(`${action} ${this.name} to ${this.currTemp}°`);
+      } else {
+        speak(`${this.name} air conditioning turned off`);
+      }
+      generateRooms(); // Force UI update
+    },
   },
   {
     name: "Kitchen",
@@ -73,16 +71,16 @@ toggleAircon() {
     increaseTemp() {
       this.currTemp++;
     },
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-      
-      
-      // Audio feedback
-      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
-      
-      // Update master control
-      updateMasterToggle();
-    }
+   toggleAircon() {
+  this.airConditionerOn = !this.airConditionerOn;
+  if (this.airConditionerOn) {
+    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+    speak(`${action} ${this.name} to ${this.currTemp}°`);
+  } else {
+    speak(`${this.name} air conditioning turned off`);
+  }
+  generateRooms(); // Force UI update
+}
   },
   {
     name: "Bathroom",
@@ -113,16 +111,16 @@ toggleAircon() {
     increaseTemp() {
       this.currTemp++;
     },
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-      
-      
-      // Audio feedback
-      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
-      
-      // Update master control
-      updateMasterToggle();
-    }
+   toggleAircon() {
+  this.airConditionerOn = !this.airConditionerOn;
+  if (this.airConditionerOn) {
+    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+    speak(`${action} ${this.name} to ${this.currTemp}°`);
+  } else {
+    speak(`${this.name} air conditioning turned off`);
+  }
+  generateRooms(); // Force UI update
+}
   },
   {
     name: "Bedroom",
@@ -153,30 +151,32 @@ toggleAircon() {
     increaseTemp() {
       this.currTemp++;
     },
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-      
-      
-      // Audio feedback
-      speak(`${this.name} AC turned ${this.airConditionerOn ? 'on' : 'off'}`);
-      
-      // Update master control
-      updateMasterToggle();
-    }
+   toggleAircon() {
+  this.airConditionerOn = !this.airConditionerOn;
+  if (this.airConditionerOn) {
+    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+    speak(`${action} ${this.name} to ${this.currTemp}°`);
+  } else {
+    speak(`${this.name} air conditioning turned off`);
+  }
+  generateRooms(); // Force UI update
+}
   },
 ];
 };
 const rooms = initializeRooms();
 
 
-const warmOverlay = `linear-gradient(
+const warmOverlay =`linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
+
+
+
+
+const coolOverlay =`linear-gradient(
     to bottom,
     rgba(141, 158, 247, 0.2),
     rgba(194, 197, 215, 0.1)
   )`;
-
-const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
-
 // Initialize the application
 
 
@@ -530,26 +530,22 @@ document.getElementById("save").addEventListener("click", () => {
 
   // Room controls delegation
   document.querySelector(".rooms-control").addEventListener("click", (e) => {
-    // Handle power button clicks
-    const powerButton = e.target.closest('.switch');
-    if (powerButton) {
-      const roomElement = powerButton.closest('.room-control');
-      const roomName = roomElement.id;
-      const room = rooms.find(r => r.name === roomName);
-      
-      if (room) {
-        room.toggleAircon();
-        updateRoomUI(room); // Update just this room's UI
-        updateMasterToggle();
-      }
-      return;
+    const roomControl = e.target.closest(".room-control");
+    if (!roomControl) return;
+    
+    const roomName = roomControl.id;
+    
+    // Power button
+    if (e.target.closest(".switch")) {
+      const room = rooms.find((r) => r.name === roomName);
+      room.toggleAircon();
+      generateRooms();
     }
-  
-    // Handle room name clicks (for selection)
-    const roomNameElement = e.target.closest('.room-name');
-    if (roomNameElement) {
-      const roomName = roomNameElement.textContent.split(' - ')[0];
+    
+    // Room name click
+    if (e.target.classList.contains("room-name")) {
       setSelectedRoom(roomName);
+      document.getElementById("rooms").value = roomName;
     }
   });
 
@@ -567,37 +563,52 @@ document.getElementById("save").addEventListener("click", () => {
   });
 };
 
-
 const acPowerToggle = document.getElementById('ac-power-toggle');
 const statusIndicator = document.querySelector('.status-indicator');
     
 acPowerToggle.addEventListener('change', function() {
-  // Add animation
+  // Animation
   const slider = this.nextElementSibling;
-  console.log(slider)
   slider.classList.add('animate-pulse');
   setTimeout(() => slider.classList.remove('animate-pulse'), 300);
-  console.log(this)
-  // Update status indicator
+  
+  // Status indicator
   if (this.checked) {
     statusIndicator.classList.add('active');
-    // Turn on all ACs
+    
+    // Turn on all ACs immediately
     rooms.forEach(room => {
       if (!room.airConditionerOn) room.toggleAircon();
     });
+    generateRooms();
+    
+    // Play delayed sounds (simple timeout approach)
+    setTimeout(() => {
+      // Play AC sound for each room with delays
+      rooms.forEach((room, index) => {
+        setTimeout(() => {
+          if (room.airConditionerOn) {
+            audioControl.play('ac'); // Or use room-specific sounds
+          }
+        }, index * 300); // 300ms between each
+      });
+      
+      // Play completion sound after all rooms
+      setTimeout(() => {
+        audioControl.play('complete');
+      }, rooms.length * 300);
+    }, 1000); // Initial 1 second delay
+    
   } else {
     statusIndicator.classList.remove('active');
     // Turn off all ACs
     rooms.forEach(room => {
       if (room.airConditionerOn) room.toggleAircon();
     });
+    generateRooms();
+    audioControl.stop(); // Stop any playing sounds
   }
-  
-  // Update room controls
-  generateRooms();
 });
- 
-
 
 // BUG FIX: Proper master toggle state
 function updateMasterToggle() {
@@ -621,6 +632,8 @@ function updateMasterToggle() {
 
 
 
+// new functionalities and new features added by me;
+// FEATURE: Smart Temperature AI
 
 
 
@@ -644,7 +657,8 @@ const audioControl = {
   play: (type) => {
     const sounds = {
       'ac': document.getElementById('acSound'),
-      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3')
+      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3'),
+      'complete': new Audio('../assets/complete-chime.mp3') // Add this file
     };
     
     if (sounds[type]) {
@@ -655,6 +669,11 @@ const audioControl = {
   
   stop: () => {
     document.getElementById('acSound').pause();
+  },
+  
+  playDelayed: async (type, delayMs = 1000) => {
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+    audioControl.play(type);
   }
 };
 // FEATURE: Enhanced AC toggle with audio
@@ -696,6 +715,7 @@ function showAddRoomModal() {
     }
   });
 }
+document.getElementById('add-room-btn').addEventListener('click', showAddRoomModal);
 // FEATURE: New room addition
 function addNewRoom(name) {
   const newRoom = {
@@ -703,7 +723,7 @@ function addNewRoom(name) {
     currTemp: 22,
     coldPreset: 20,
     warmPreset: 28,
-    image: "./assets/default.jpg",
+    image: "./assets/living-room.jpg",
     airConditionerOn: false,
     startTime: '08:00',
     endTime: '22:00',
@@ -727,7 +747,7 @@ function addNewRoom(name) {
   });
 }
 
-// FEATURE: Automatic adjustments
+
 
 
 const init = () => {
@@ -736,7 +756,6 @@ const init = () => {
   generateRooms();
   setupEventListeners();
   setInterval(checkSchedule, 60000);
-  updateMasterToggle();
 };
 
 // Initialize the app
