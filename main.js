@@ -386,7 +386,7 @@ roomsHTML += `
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
-  updateMasterToggle();
+  updateMaster();
 };
 const setupTimeInputListeners = () => {
   document.querySelectorAll('.time-input').forEach(input => {
@@ -637,49 +637,20 @@ function speak(text, priority = "low") {
 }
 // FEATURE: Audio control
 const audioControl = {
-  audioContext: null,
-  currentSounds: new Map(), // Track sounds by room
-
-  init() {
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  },
-
-  async loadSound(roomName) {
-    try {
-      const response = await fetch(`./assets/audio/${roomName.toLowerCase().replace(' ', '-')}.mp3`);
-      const arrayBuffer = await response.arrayBuffer();
-      return await this.audioContext.decodeAudioData(arrayBuffer);
-    } catch (error) {
-      console.error(`Error loading sound for ${roomName}:`, error);
-      return null;
+  play: (type) => {
+    const sounds = {
+      'ac': document.getElementById('acSound'),
+      'beep': new Audio('../assets/Aylex - Last Summer (freetouse.com).mp3')
+    };
+    
+    if (sounds[type]) {
+      sounds[type].currentTime = 0;
+      sounds[type].play();
     }
   },
-
-  async play(roomName) {
-    await this.stop(roomName); // Stop any existing sound for this room
-    
-    const audioBuffer = await this.loadSound(roomName);
-    if (!audioBuffer) return;
-
-    const source = this.audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(this.audioContext.destination);
-    source.start(0);
-    
-    this.currentSounds.set(roomName, source);
-  },
-
-  async stop(roomName) {
-    const source = this.currentSounds.get(roomName);
-    if (source) {
-      source.stop();
-      this.currentSounds.delete(roomName);
-    }
-  },
-
-  async stopAll() {
-    this.currentSounds.forEach(source => source.stop());
-    this.currentSounds.clear();
+  
+  stop: () => {
+    document.getElementById('acSound').pause();
   }
 };
 // FEATURE: Enhanced AC toggle with audio
