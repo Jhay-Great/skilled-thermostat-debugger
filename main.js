@@ -333,28 +333,37 @@ const generateRooms = () => {
   let roomsHTML = "";
 
   rooms.forEach((room) => {
-   // In generateRooms() function:
-roomsHTML += `
-<div class="room-control" id="${room.name}">
-  <div class="top">
-    <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
-    <button class="switch">
-      <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
-    </button>
-  </div>
-  <div class="time-display">
-    <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
-           value="${room.startTime}" step="3600">
-    <div class="bars">
-      ${Array(32).fill('<span class="bar"></span>').join('')}
-    </div>
-    <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
-           value="${room.endTime}">
-  </div>
-  <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
-    ${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${room.currTemp}°
-  </span>
-</div>`;
+    // Determine status message based on temperature range
+    let statusMessage = "";
+    if (room.airConditionerOn) {
+      if (room.currTemp <= 24) {
+        statusMessage = `Cooling room to: ${room.currTemp}°`;
+      } else {
+        statusMessage = `Warming room to: ${room.currTemp}°`;
+      }
+    }
+
+    roomsHTML += `
+    <div class="room-control" id="${room.name}">
+      <div class="top">
+        <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
+        <button class="switch">
+          <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
+        </button>
+      </div>
+      <div class="time-display">
+        <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
+               value="${room.startTime}" step="3600">
+        <div class="bars">
+          ${Array(32).fill('<span class="bar"></span>').join('')}
+        </div>
+        <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
+               value="${room.endTime}">
+      </div>
+      <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
+        ${statusMessage}
+      </span>
+    </div>`;
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
