@@ -31,9 +31,18 @@ const initializeRooms = () => {
     increaseTemp() {
       this.currTemp++;
     },
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-    },
+   // Modify the toggleAircon method in room objects
+// In your initializeRooms() function, ensure all rooms have this toggle method:
+toggleAircon() {
+  this.airConditionerOn = !this.airConditionerOn;
+  if (this.airConditionerOn) {
+    const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+    speak(`${action} ${this.name} to ${this.currTemp}°`);
+  } else {
+    speak(`${this.name} air conditioning turned off`);
+  }
+  generateRooms(); // Force UI update
+}
   },
   {
     name: "Kitchen",
@@ -328,34 +337,21 @@ function checkSchedule() {
 
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
-  let roomsHTML = "";
-
-  rooms.forEach((room) => {
-   // In generateRooms() function:
-roomsHTML += `
-<div class="room-control" id="${room.name}">
-  <div class="top">
-    <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
-    <button class="switch">
-      <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
-    </button>
-  </div>
-  <div class="time-display">
-    <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
-           value="${room.startTime}" step="3600">
-    <div class="bars">
-      ${Array(32).fill('<span class="bar"></span>').join('')}
+  roomsControlContainer.innerHTML = rooms.map(room => `
+    <div class="room-control" id="${room.name}">
+      <div class="top">
+        <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
+        <button class="switch">
+          <ion-icon name="power-outline" 
+            class="${room.airConditionerOn ? "powerOn" : ""}"
+            style="color: ${room.airConditionerOn ? "#2ecc71" : "#e74c3c"}">
+          </ion-icon>
+        </button>
+      </div>
+      <!-- Rest of your room HTML -->
     </div>
-    <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
-           value="${room.endTime}">
-  </div>
-  <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
-    ${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${room.currTemp}°
-  </span>
-</div>`;
-  });
-
-  roomsControlContainer.innerHTML = roomsHTML;
+  `).join('');
+  
   updateMasterToggle();
 };
 const setupTimeInputListeners = () => {
@@ -499,25 +495,21 @@ document.getElementById("save").addEventListener("click", () => {
 
 
   // Room controls delegation
-  document.querySelector(".rooms-control").addEventListener("click", (e) => {
-    const roomControl = e.target.closest(".room-control");
-    if (!roomControl) return;
-    
-    const roomName = roomControl.id;
-    
-    // Power button
-    if (e.target.closest(".switch")) {
-      const room = rooms.find((r) => r.name === roomName);
-      room.toggleAircon();
-      generateRooms();
-    }
-    
-    // Room name click
-    if (e.target.classList.contains("room-name")) {
-      setSelectedRoom(roomName);
-      document.getElementById("rooms").value = roomName;
-    }
-  });
+ // Replace your existing event listener with this:
+document.querySelector(".rooms-control").addEventListener("click", (e) => {
+  const switchButton = e.target.closest(".switch");
+  if (!switchButton) return;
+  
+  const roomControl = switchButton.closest(".room-control");
+  const roomName = roomControl.id;
+  const room = rooms.find((r) => r.name === roomName);
+  
+  if (room) {
+    room.toggleAircon();
+    // Update master toggle state
+    updateMasterToggle();
+  }
+});
 
   // Time input changes
   document.querySelector(".rooms-control").addEventListener("change", (e) => {
@@ -537,29 +529,25 @@ const acPowerToggle = document.getElementById('ac-power-toggle');
 const statusIndicator = document.querySelector('.status-indicator');
     
 acPowerToggle.addEventListener('change', function() {
-  // Add animation
-  const slider = this.nextElementSibling;
-  slider.classList.add('animate-pulse');
-  setTimeout(() => slider.classList.remove('animate-pulse'), 300);
+  const turnOn = this.checked;
   
-  // Update status indicator
-  if (this.checked) {
-    statusIndicator.classList.add('active');
-    // Turn on all ACs
-    rooms.forEach(room => {
-      if (!room.airConditionerOn) room.toggleAircon();
-    });
-  } else {
-    statusIndicator.classList.remove('active');
-    // Turn off all ACs
-    rooms.forEach(room => {
-      if (room.airConditionerOn) room.toggleAircon();
-    });
-  }
+  rooms.forEach(room => {
+    if (room.airConditionerOn !== turnOn) {
+      room.airConditionerOn = turnOn;
+      speak(`${room.name} turned ${turnOn ? 'on' : 'off'}`);
+    }
+  });
   
-  // Update room controls
   generateRooms();
 });
+
+function updateMasterToggle() {
+  const allOn = rooms.every(room => room.airConditionerOn);
+  const allOff = rooms.every(room => !room.airConditionerOn);
+  
+  acPowerToggle.checked = allOn;
+  acPowerToggle.indeterminate = !allOn && !allOff;
+}
 
 // BUG FIX: Proper master toggle state
 function updateMasterToggle() {
@@ -583,32 +571,7 @@ function updateMasterToggle() {
 
 
 
-// new functionalities and new features added by me;
-// FEATURE: Smart Temperature AI
-const smartTemperatureAI = {
-  predictOptimalTemp: (room, weatherData) => {
-    const hour = new Date().getHours();
-    let baseTemp = 22;
-    
-    if (hour >= 22 || hour <= 6) baseTemp = 20;
-    else if (hour >= 17) baseTemp = 23;
-    
-    if (weatherData?.isCold) baseTemp += 1;
-    if (weatherData?.isHot) baseTemp -= 1;
-    
-    return Math.min(Math.max(baseTemp, 18), 26);
-  },
-  
-  applyAutoSettings: () => {
-    rooms.forEach(room => {
-      const optimalTemp = this.predictOptimalTemp(room, { isCold: true });
-      room.setCurrTemp(optimalTemp);
-      room.airConditionerOn = true;
-    });
-    generateRooms();
-    speak("AI has adjusted temperatures for optimal comfort");
-  }
-};
+
 
 
 // FEATURE: Text-to-speech
@@ -715,7 +678,6 @@ function addNewRoom(name) {
 }
 
 // FEATURE: Automatic adjustments
-setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
 
 
 const init = () => {
@@ -724,7 +686,6 @@ const init = () => {
   generateRooms();
   setupEventListeners();
   setInterval(checkSchedule, 60000);
-  setInterval(smartTemperatureAI.applyAutoSettings, 0);
 };
 
 // Initialize the app
