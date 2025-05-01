@@ -471,43 +471,71 @@ const setupEventListeners = () => {
   });
 
  // BUG FIX: Proper temperature validation
-document.getElementById("save").addEventListener("click", () => {
+ document.getElementById("save").addEventListener("click", () => {
   const coolInput = document.getElementById("coolInput");
   const warmInput = document.getElementById("warmInput");
   const errorSpan = document.querySelector(".error");
   
   errorSpan.style.display = "none";
   
+  // Validate inputs
   if (!coolInput.value || !warmInput.value) {
-    errorSpan.style.display = "block";
-    errorSpan.textContent = "Please enter both temperatures";
+    showError("Please enter both temperatures");
     return;
   }
   
   const coolTemp = parseInt(coolInput.value);
   const warmTemp = parseInt(warmInput.value);
   
+  if (isNaN(coolTemp) || isNaN(warmTemp)) {
+    showError("Please enter valid numbers");
+    return;
+  }
+  
+  // Enhanced range validation with clear messages
   if (coolTemp < 10 || coolTemp > 24) {
-    errorSpan.style.display = "block";
-    errorSpan.textContent = "Cool preset must be between 10°-24°";
+    showError("Cool preset must be between 10°-24° (cooling range)");
+    return;
+  }
+  
+  if (warmTemp < 25 || warmTemp > 32) {
+    showError("Warm preset must be between 25°-32° (warming range)");
     return;
   }
   
   if (coolTemp >= warmTemp) {
-    errorSpan.style.display = "block";
-    errorSpan.textContent = "Cool temp must be lower than warm temp";
+    showError("Cool temperature must be lower than warm temperature");
     return;
   }
   
+  // Save presets
   const room = rooms.find((r) => r.name === selectedRoom);
   room.setColdPreset(coolTemp);
   room.setWarmPreset(warmTemp);
   
+  // Show success message
+  Swal.fire({
+    icon: 'success',
+    title: 'Presets saved!',
+    text: `Cooling: ${coolTemp}° | Warming: ${warmTemp}°`,
+    showConfirmButton: false,
+    timer: 1500
+  });
+  
+  // Reset UI
   coolInput.value = "";
   warmInput.value = "";
   document.querySelector(".inputs").classList.add("hidden");
   updatePresetButtonStates(room);
 });
+
+function showError(message) {
+  const errorSpan = document.querySelector(".error");
+  errorSpan.style.display = "block";
+  errorSpan.textContent = message;
+  errorSpan.style.color = "#ff4444";
+  errorSpan.style.fontWeight = "bold";
+}
 
 
   // Room controls delegation
