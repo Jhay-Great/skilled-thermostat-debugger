@@ -310,10 +310,11 @@ function checkSchedule() {
     
     if (shouldBeOn && !room.airConditionerOn) {
       room.airConditionerOn = true;
-      if (room.currTemp > 25) {
-        room.setCurrTemp(room.coldPreset);
+      // Apply cooling if above 24°, warming if below 25°
+      if (room.currTemp > 24) {
+        room.setCurrTemp(Math.min(room.coldPreset, 24)); // Ensure cooling doesn't go above 24°
       } else {
-        room.setCurrTemp(room.warmPreset);
+        room.setCurrTemp(Math.max(room.warmPreset, 25)); // Ensure warming doesn't go below 25°
       }
     } else if (!shouldBeOn && room.airConditionerOn) {
       room.airConditionerOn = false;
