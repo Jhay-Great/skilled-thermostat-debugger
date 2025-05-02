@@ -211,6 +211,7 @@ function saveRoomsToStorage() {
   localStorage.setItem('smartHomeRooms', JSON.stringify(roomsToSave));
 }
 
+
 const warmOverlay =`linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
 
