@@ -1,0 +1,32 @@
+{
+  "name": "skilled-thermostat-debugger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.cjs",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesukay2/skilled-thermostat-debugger.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yesukay2/skilled-thermostat-debugger/issues"
+  },
+  "homepage": "https://github.com/yesukay2/skilled-thermostat-debugger#readme",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^26.1.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/*.test.cjs"
+    ],
+    "transform": {}
+  }
+}
