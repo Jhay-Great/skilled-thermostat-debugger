@@ -451,7 +451,7 @@ input:checked + .toggle-slider {
 }
 
 input:checked + .toggle-slider:before {
-  transform: translateX(30px);
+  transform: translateX(30px) !important;
 }
 
 /* Add animation classes */
