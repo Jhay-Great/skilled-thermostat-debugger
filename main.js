@@ -108,8 +108,11 @@ function updatePresetButtonStates(room) {
   const coolBtn = document.getElementById("cool");
   const warmBtn = document.getElementById("warm");
   
-  coolBtn.style.backgroundColor = room.currTemp === room.coldPreset ? '#a8c7ff' : '#d9d9d9';
-  warmBtn.style.backgroundColor = room.currTemp === room.warmPreset ? '#ffa8a8' : '#d9d9d9';
+  coolBtn.classList.toggle('cool-active', room.currTemp === room.coldPreset);
+coolBtn.classList.toggle('inactive', room.currTemp !== room.coldPreset);
+
+warmBtn.classList.toggle('warm-active', room.currTemp === room.warmPreset);
+warmBtn.classList.toggle('inactive', room.currTemp !== room.warmPreset);
 }
 
 function setInitialOverlay() {
@@ -523,8 +526,41 @@ function init() {
   setInterval(smartTemperatureAI.applyAutoSettings, 1800000);
 }
 
+
 // Start the app when DOM is loaded
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", ()=>{
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = themeToggle.querySelector('ion-icon');
+  const themeText = themeToggle.querySelector('span');
+  
+  // Check for saved theme preference or use system preference
+  const savedTheme = localStorage.getItem('theme');
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeIcon.name = 'moon';
+    themeText.textContent = 'Dark';
+  }
+  
+  // Toggle theme on button click
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      themeIcon.name = 'sunny';
+      themeText.textContent = 'Light';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      themeIcon.name = 'moon';
+      themeText.textContent = 'Dark';
+    }
+  });
+  init();
+} );
 
 // Export necessary functions for testing
 if (typeof module !== 'undefined' && module.exports) {
