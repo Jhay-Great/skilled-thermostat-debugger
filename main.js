@@ -7,8 +7,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/living-room.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -42,8 +42,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/kitchen.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -77,8 +77,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/bathroom.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -112,8 +112,8 @@ const rooms = [
     warmPreset: 32,
     image: "./assets/bedroom.jpg",
     airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    startTime: "16:30",
+    endTime: "20:00",
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -142,13 +142,22 @@ const rooms = [
   },
 ];
 
-const warmOverlay= `linear-gradient(
-    to bottom,
-    rgba(141, 158, 247, 0.2),
-    rgba(194, 197, 215, 0.1)
-  )`;
+// error cleared  ------------->>>> exchanged variable naming to match color codes and make UI/UX more intuitive
+// const warmOverlay= `linear-gradient(
+//     to bottom,
+//     rgba(141, 158, 247, 0.2),
+//     rgba(194, 197, 215, 0.1)
+//   )`;
 
-const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
+// const coolOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
+
+const coolOverlay = `linear-gradient(
+  to bottom,
+  rgba(141, 158, 247, 0.2),
+  rgba(194, 197, 215, 0.1)
+)`;
+
+const warmOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
 const setInitialOverlay = () => {
   document.querySelector(
@@ -197,6 +206,11 @@ let selectedRoom = rooms[0].name;
 // Set default temperature
 currentTemp.textContent = `${rooms[0].currTemp}°`;
 
+// code refactor
+// declare preset states
+let coolPresetTrigger = false;
+let warmPresetTrigger = false;
+
 setInitialOverlay();
 
 document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
@@ -210,9 +224,21 @@ rooms.forEach((room) => {
 
 // Set current temperature to currently selected room
 
-const setSelectedRoom = (selectedRoom) => {
-  const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  setIndicatorPoint(room.currTemp);
+const setSelectedRoom = (selectedRoomParam) => {
+  const room = rooms.find((currRoom) => currRoom.name === selectedRoomParam);
+  // console.log(room);
+  // code refactor ------->>>>>> setIndicatorPoint dynamically
+  // setIndicatorPoint(room);
+
+  coolPresetTrigger
+    ? setIndicatorPoint(room.coldPreset)
+    : warmPresetTrigger
+    ? setIndicatorPoint(room.warmPreset)
+    : setIndicatorPoint(room.currTemp);
+
+  // set selected room (modular code)
+  selectedRoom = selectedRoomParam;
+  // console.log(`from setSelectRoom function`, selectedRoom)
 
   //   set the current stats to current room temperature
   currentTemp.textContent = `${room.currTemp}°`;
@@ -224,14 +250,20 @@ const setSelectedRoom = (selectedRoom) => {
   document.querySelector(".room-name").innerText = selectedRoom;
 
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
+
+  // code refactor ----------->>>>>>>> Add generateRooms() function call here
+  generateRooms();
 };
 
-roomSelect.addEventListener("change", function () {
-  selectedRoom = this.value;
+roomSelect.addEventListener("change", function (e) {
+  // error cleared ------------>>>>>> Incorrect value being accessed.
+  // selectedRoom = this.value;
 
+  selectedRoom = e.target.options[e.target.selectedIndex].text;
   setSelectedRoom(selectedRoom);
-});
 
+  // console.log(selectedRoom)
+});
 
 // Set preset temperatures
 const defaultSettings = document.querySelector(".default-settings");
@@ -240,11 +272,25 @@ defaultSettings.addEventListener("click", function (e) {});
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const increaseRoomTemperature = room.increaseTemp;
 
-  if (room.currTemp < 32) {
-    increaseRoomTemperature();
-  }
+  // error cleared --------------->>>>>> wrong invocation.
+  // discovered through code inspection
+  // const increaseRoomTemperature = room.increaseTemp;
+
+  // code refactored ------->>>> No need for variable declaration for function call
+  // use of && operator
+  // const increaseRoomTemperature = room.increaseTemp();
+
+  // if (room.currTemp < 32) {
+
+  // error cleared --------------->>>>>> wrong invocation.
+  // discovered through code inspection
+  // increaseRoomTemperature()
+
+  // increaseRoomTemperature;
+  // }
+
+  room.currTemp < 32 && room.increaseTemp();
 
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
@@ -261,11 +307,21 @@ document.getElementById("increase").addEventListener("click", () => {
 
 document.getElementById("reduce").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  const decreaseRoomTemperature = room.decreaseTemp;
 
-  if (room.currTemp > 10) {
-    decreaseRoomTemperature();
-  }
+  // code refactored ------->>>> No need for variable declaration for function call
+  // use of && operator
+  // const decreaseRoomTemperature = room.decreaseTemp();
+
+  // if (room.currTemp > 10) {
+
+  // error cleared --------------->>>>>> wrong invocation.
+  // discovered through code inspection
+  // decreaseRoomTemperature();
+
+  // decreaseRoomTemperature;
+  // }
+
+  room.currTemp > 10 && room.decreaseTemp();
 
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
@@ -283,6 +339,36 @@ document.getElementById("reduce").addEventListener("click", () => {
 const coolBtn = document.getElementById("cool");
 const warmBtn = document.getElementById("warm");
 
+// cool preset button
+coolBtn.addEventListener("click", () => {
+  // console.log(selectedRoom)
+  const room = rooms.find((currRoom) => {
+    return currRoom.name === selectedRoom;
+  });
+
+  // coolPresetTrigger = !coolPresetTrigger;
+  const coldPreset = room.coldPreset;
+
+  // console.log(coldPreset);
+  room.setCurrTemp(coldPreset);
+  // setIndicatorPoint(coldPreset)
+
+  setSelectedRoom(room.name);
+  // currentTemp.innerText = `${room.currTemp}°`;
+  generateRooms();
+});
+
+// warm preset button
+warmBtn.addEventListener("click", () => {
+  const room = rooms.find((currRoom) => {
+    return currRoom.name === selectedRoom;
+  });
+  // warmPresetTrigger = !warmPresetTrigger;
+  const warmPreset = room.warmPreset;
+  room.setCurrTemp(warmPreset);
+  setSelectedRoom(room.name);
+  generateRooms();
+});
 
 const inputsDiv = document.querySelector(".inputs");
 // Toggle preset inputs
@@ -295,6 +381,9 @@ document.getElementById("newPreset").addEventListener("click", () => {
 // close inputs
 document.getElementById("close").addEventListener("click", () => {
   inputsDiv.classList.add("hidden");
+
+  // error cleared -------------->>>>>>>>> error message shows when input is invalid. However when preset form is closed and reopen, the error message is still set to display
+  document.querySelector(".error").style.display = "none";
 });
 
 // handle preset input data
@@ -305,15 +394,30 @@ document.getElementById("save").addEventListener("click", () => {
 
   if (coolInput.value && warmInput.value) {
     // Validate the data
-    if (coolInput.value < 10 || coolInput.value > 25) {
+    if (coolInput.value < 10 || coolInput.value > 24) {
       errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
+      errorSpan.innerText = "Enter valid cooling temperatures (10° - 24°)";
+
+      // error cleared ----------->>>>> added a return statement to make logic function as expected. Submission will be stopped when data isn't valid
+      return;
+
+      // error cleared --------->>>>>> added else block to set error message to none when there's no error.
+    } else {
+      errorSpan.style.display = "none";
     }
 
     if (warmInput.value < 25 || warmInput.value > 32) {
       errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
+      errorSpan.innerText = "Enter valid warming temperatures (25° - 32°)";
+
+      // error cleared ----------->>>>> added a return statement to make logic function as expected. Submission will be stopped when data isn't valid
+      return;
+
+      // error cleared --------->>>>>> added else block to set error message to none when there's no error.
+    } else {
+      errorSpan.style.display = "none";
     }
+
     // Validation passed
     // Set current room's presets
     const currRoom = rooms.find((room) => room.name === selectedRoom);
@@ -321,9 +425,42 @@ document.getElementById("save").addEventListener("click", () => {
     currRoom.setColdPreset(coolInput.value);
     currRoom.setWarmPreset(warmInput.value);
 
-    coolInput.value = "";
-    warmInput.value = "";
+    // console.log(currRoom.coldPreset)
+    // console.log(currRoom.warmPreset)
   }
+  // code refactor ------------>>>>>>>> added else block to handle empty input fields
+  else {
+    errorSpan.style.display = "block";
+    errorSpan.innerText = "Temperatures value required!";
+  }
+
+  if (coolInput.value || warmInput.value) {
+    if (coolInput.value && (coolInput.value < 10 || coolInput.value > 24)) {
+      errorSpan.style.display = "block";
+      errorSpan.innerText = "Enter valid cooling temperatures (10° - 24°)";
+      return;
+    } else {
+      errorSpan.style.display = "none";
+    }
+
+    if (warmInput.value && (warmInput.value < 25 || warmInput.value > 32)) {
+      errorSpan.style.display = "block";
+      errorSpan.innerText = "Enter valid warming temperatures (25° - 32°)";
+      return;
+    } else {
+      errorSpan.style.display = "none";
+    }
+
+    // Validation passed
+    // Set current room's presets
+    const currRoom = rooms.find((room) => room.name === selectedRoom);
+
+    // set preset value based on input type
+    coolInput.value && currRoom.setColdPreset(coolInput.value);
+    warmInput.value && currRoom.setWarmPreset(warmInput.value);
+  }
+  // coolInput.value = "";
+  // warmInput.value = "";
 });
 
 // Rooms Control
@@ -348,7 +485,9 @@ const generateRooms = () => {
          
           <span class="room-status" style="display: ${
             room.airConditionerOn ? "" : "none"
-          }">${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${
+            // error cleared --------->>>>>> logic for message display is not intuitive. comparison sign should be < with the  below implementation
+            // }">${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${
+          }">${room.currTemp < 25 ? "Cooling room to: " : "Warming room to: "}${
       room.currTemp
     }°</span>
         </div>
@@ -397,8 +536,8 @@ const displayTime = (room) => {
         </div>
         <span class="time">${room.endTime}</span>
       </div>
-  `
-}
+  `;
+};
 
 generateRooms();
 
@@ -409,9 +548,21 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
     );
     room.toggleAircon();
     generateRooms();
+
+    // code refactor -------->>>>>> moved below statement to setSelectedRoom function
+    // selectedRoom = e.target.parentNode.parentNode.id;
+
+    setSelectedRoom(room.name);
+    // console.log(`from switch`, selectedRoom)
   }
 
-  if (e.target.classList.contains("room-name")) {
-    setSelectedRoom(e.target.parentNode.parentNode.id);
-  }
+  // error cleared ----------->>>> room-name class isn't present on the switch button for which the feature is created for
+  // if (e.target.classList.contains("room-name")) {
+
+  // logging value here returns nothing which confirms error logic.
+  // Also setSelectedRoom(e.target.parentNode.parentNode.id); can be added to if block above to avoid redundancy.
+
+  // console.log(e.target.parentNode.parentNode.id)
+  // setSelectedRoom(e.target.parentNode.parentNode.id);
+  // }
 });
