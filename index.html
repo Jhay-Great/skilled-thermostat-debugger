@@ -2,27 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
 
     <!-- Manrope Font Embeded -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com" />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
-      rel="stylesheet"
-    />
+      rel="stylesheet" />
 
     <!-- Animate CSS -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="style.css" />
 
     <!-- JS -->
-    <script src="./main.js" defer></script>
+    <script
+      src="./main.js"
+      defer></script>
 
     <title>Smart Home | Thermostat Widget</title>
   </head>
@@ -31,7 +40,59 @@
       <div class="container animate__animated animate__fadeInUp">
         <div class="top-content">
           <h1 class="logo">Thermostat</h1>
-          <select id="rooms"></select>
+          <div class="room-select">
+            <select id="rooms"></select>
+            <button id="add-room">Add Room</button>
+          </div>
+        </div>
+
+        <!-- Modal with form for assigning new room -->
+        <div class="modal">
+          <h1>Assign New Room</h1>
+          <div id="modal-form">
+            <!-- Close button -->
+            <div class="close-modal">&times</div>
+            <form
+              action=""
+              method="post"
+              id="room-form">
+              <input
+                type="text"
+                placeholder="Room Name"
+                name="room-name"
+                alt="Room Name"
+                required />
+              <input
+                type="text"
+                placeholder="Default Temperature"
+                name="default-temp"
+                alt="Default Temperature"
+                required />
+
+              <input
+                type="file"
+                accept="image/*"
+                placeholder="Room Image"
+                name="room-image"
+                alt="Room Image"
+                required />
+              <input
+                type="time"
+                placeholder="Start Time"
+                name="start-time"
+                alt="Start Time" />
+              <input
+                type="time"
+                placeholder="End Time"
+                name="end-time"
+                alt="end Time" />
+              <button
+                id="modal-save"
+                type="submit">
+                Save
+              </button>
+            </form>
+          </div>
         </div>
         <!-- Interior card -->
         <div class="room">
@@ -48,17 +109,19 @@
               height="44"
               viewBox="0 0 44 44"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+              xmlns="http://www.w3.org/2000/svg">
               <circle
                 cx="22"
                 cy="22"
                 r="19.5"
                 fill="#515155"
                 stroke="white"
-                stroke-width="5"
-              />
-              <circle cx="21.5" cy="21.5" r="9.5" fill="#FFD7A8" />
+                stroke-width="5" />
+              <circle
+                cx="21.5"
+                cy="21.5"
+                r="9.5"
+                fill="#FFD7A8" />
             </svg>
 
             <div class="info">
@@ -71,21 +134,29 @@
             <p>Set Temperature</p>
             <div class="buttons">
               <button id="reduce">
-                <ion-icon size="large" name="remove-outline"></ion-icon>
+                <ion-icon
+                  size="large"
+                  name="remove-outline"></ion-icon>
               </button>
               <button id="increase">
-                <ion-icon size="large" name="add-outline"></ion-icon>
+                <ion-icon
+                  size="large"
+                  name="add-outline"></ion-icon>
               </button>
             </div>
           </div>
 
           <div class="default-settings">
             <button id="cool">
-              <ion-icon size="large" name="snow-outline"></ion-icon>
+              <ion-icon
+                size="large"
+                name="snow-outline"></ion-icon>
               Cool
             </button>
             <button id="warm">
-              <ion-icon size="large" name="leaf"></ion-icon>
+              <ion-icon
+                size="large"
+                name="leaf"></ion-icon>
               warm
             </button>
           </div>
@@ -97,41 +168,66 @@
           </div>
 
           <div class="inputs hidden">
-            <input
-              id="coolInput"
-              type="number"
-              min="10"
-              max="22"
-              placeholder="Cool"
-            />
-            <input
-              id="warmInput"
-              type="number"
-              min="22"
-              max="32"
-              placeholder="Warm"
-            />
-            <button id="save">Save</button>
-            <button id="close"><ion-icon name="close"></ion-icon></button>
+            <div>
+              <input
+                id="coolInput"
+                type="number"
+                min="10"
+                max="22"
+                placeholder="Cool" />
+              <input
+                id="warmInput"
+                type="number"
+                min="22"
+                max="32"
+                placeholder="Warm" />
+              <button id="saveTemp">Save</button>
+              <span class="error"></span>
+            </div>
 
-            <span class="error"></span>
+            <div class="timePreset">
+              <input
+                id="startTime"
+                type="text"
+                placeholder="Start Time"
+                onfocus="this.type='time';"
+                onblur="this.type='text';" />
+              <input
+                id="endTime"
+                type="text"
+                placeholder="End Time"
+                onfocus="this.type='time';"
+                onblur="this.type='text';" />
+              <button id="saveTime">Save</button>
+              <span class="timePresetError"></span>
+            </div>
+            <button id="close">
+              <ion-icon name="checkmark-done"></ion-icon>
+            </button>
           </div>
         </div>
       </div>
 
-      <div
-        class="container rooms-control animate__animated animate__fadeIn"
-      ></div>
+      <div class="rooms-container">
+        <div class="master-switch">
+          <ion-label id="masterSwitchLabel">Master Switch</ion-label>
+          <ion-icon
+            id="masterToggler"
+            size="large"
+            name="toggle-outline"
+            color="dark"></ion-icon>
+        </div>
+        <div
+          class="container rooms-control animate__animated animate__fadeIn"></div>
+      </div>
     </div>
 
     <!-- Ionicons -->
     <script
       type="module"
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-    ></script>
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script
       nomodule
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-    ></script>
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   </body>
 </html>

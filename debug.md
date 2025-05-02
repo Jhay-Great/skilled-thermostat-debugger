@@ -1,0 +1,1 @@
+1. Moved selectedRoom assignment to setSelectedRoom() function for modularity
