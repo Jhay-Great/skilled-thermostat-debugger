@@ -21,6 +21,21 @@ button {
   font-family: "Manrope", sans-serif;
   color: var(--text-primary);
 }
+select{
+  border: 1px solid rgba(0,0,0,0.25) !important ;
+  padding: 0.25rem .8rem;
+  border-radius: .2rem
+  ;
+}
+.add-room-btn{
+  transition: .38s ease-in;
+}
+.add-room-btn:hover{
+  font-size: 18px;
+  background: orange;
+  color: #fff;
+}
+
 
 body {
   padding: 50px 0;
@@ -43,6 +58,8 @@ body {
   display: flex;
   gap: 20px;
   align-items: start;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .main-content {
@@ -313,7 +330,7 @@ svg.point {
   justify-content: space-between;
   align-items: center;
 }
-
+.add-room-btn,
 .room-control .top button.switch {
   width: 36px;
   height: 36px;
@@ -365,14 +382,6 @@ svg.point {
   background-color: #ffae33;
 }
 
-#warm.show-warmth {
- background-color: var(--cool-blue);
-}
-#cool.show-coldness {
-  background-color: var(--cool-blue);
-}
-
-
 .time {
   padding-left: 10px; /* Add spacing between times */
 }
@@ -398,4 +407,259 @@ span.room-status {
   /* border: solid 1px pink; */
   margin: 20px 0 0 0;
   color: #7c7c83;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--warm-red);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(30px) !important;
+}
+
+/* Add animation classes */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.animate-pulse {
+  animation: pulse 0.3s ease;
+}
+.toggle-wrapper{
+  position: relative;
+  padding-bottom: 50px;
+  background: #fff;
+}
+.toggle-container{
+  position: absolute;
+  right: 25px;
+  bottom: 20px;
+  z-index: 30;
+}
+.time-input {
+  width: 80px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  background: white;
+  cursor: pointer;
+  text-align: center;
+}
+
+.time-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+.time-input {
+  /* Force 24-hour format in browsers that support it */
+  -moz-appearance: textfield;
+}
+
+.time-input::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .time-input[type="time"] {
+    position: relative;
+  }
+  .time-input[type="time"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    color: transparent;
+    background: transparent;
+  }
+}
+/* For the new room modal */
+.modal {
+  position: fixed;
+  width:100%;
+  height: 100%;
+  display: flex;
+align-items: center;
+justify-content: center;
+  gap: 10px;
+  justify-content: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.05);
+  padding: 20px;
+  z-index: 100;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease-in-out;
+}
+.modal.hidden {
+  display: none;
+}
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+.modal-content input {
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  padding: 4px;
+  height: 48px;
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
+  transition: all 0.3s ease;
+}
+
+.toggle-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.toggle-container span:first-child {
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 16px;
+  min-width: 80px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e0e0e0;
+  transition: .4s;
+  border-radius: 34px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #2196F3, 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 8px;
+  background: #e0e0e0;
+  transition: background 0.3s ease;
+}
+
+input:checked ~ .status-indicator {
+  background: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+/* Animation for toggle */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.toggle-switch:active .toggle-slider:before {
+  animation: pulse 0.3s ease;
 }
