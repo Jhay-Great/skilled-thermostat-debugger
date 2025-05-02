@@ -1,15 +1,19 @@
-const { JSDOM } = require("jsdom");
-const fs = require("fs");
-const path = require("path");
+/**
+ * @jest-environment jsdom
+ */
+
+// import { JSDOM } from "jsdom";
+import fs from "fs";
+import path from "path";
 
 // Load your HTML file
 const html = readFileSync(resolve(__dirname, "index.html"), "utf8");
-const { window } = new JSDOM(html, { runScripts: "dangerously" });
+// const { window } = new JSDOM(html, { runScripts: "dangerously" });
 global.document = window.document;
 global.window = window;
 
 // Import your main code
-const {
+import {
   Room,
   rooms,
   setSelectedRoom,
@@ -18,7 +22,7 @@ const {
   toggleAllAircon,
   handleModalSubmit,
   generateRooms,
-} = require("./main.cjs");
+} from "./main.js";
 
 describe("Thermostat Core Functionality", () => {
   beforeEach(() => {
