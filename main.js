@@ -194,6 +194,7 @@ const initializeRooms = () => {
 const rooms = initializeRooms();
 function saveRoomsToStorage() {
   // Create a clean object without methods for storage
+  // 
   const roomsToSave = rooms.map(room => {
     return {
       name: room.name,
