@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "characterCounter.test.js",
   "scripts": {
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "jest": {
     "testEnvironment": "jsdom",
