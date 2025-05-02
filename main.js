@@ -142,6 +142,106 @@ const rooms = [
   },
 ];
 
+class Room {
+  constructor(name, currentTemp, roomImage, startTime, endTime) {
+    this.name = name;
+    this.currTemp = currentTemp;
+    this.image = roomImage;
+    this.currTemp = currentTemp;
+    this.airConditionerOn = false;
+    this.coolPreset = null;
+    this.warmPreset = null;
+    this.startTime = startTime;
+    this.endTime = endTime;
+  }
+
+  toggleAircon() {
+    this.airConditionerOn = !this.airConditionerOn;
+  }
+
+  setCurrTemp(newTemp) {
+    this.currTemp = newTemp;
+  }
+
+  setWarmPreset(newWarm) {
+    this.warmPreset = newWarm;
+  }
+
+  setCoolPreset(newCool) {
+    this.coolPreset = newCool;
+  }
+
+  setSchedule(startTime, endTime) {
+    this.startTime = startTime;
+    this.endTime = endTime;
+  }
+
+  // reset schedule
+  resetSchedule() {
+    this.startTime = null;
+    this.endTime = null;
+  }
+
+  increaseTemp() {
+    this.currTemp++;
+  }
+
+  decreaseTemp() {
+    this.currTemp--;
+  }
+}
+
+// modal
+const modal = document.querySelector(".modal");
+const modalForm = document.querySelector("#modal-form");
+const closeBtn = document.querySelector(".close-modal");
+const addRoomBtn = document.querySelector("#add-room");
+const roomsSelect = document.querySelector("#rooms");
+
+addRoomBtn.addEventListener("click", () => {
+  modal.style.display = "block";
+});
+
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// close modal when clicked outside
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+modalForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const roomName = e.target["room-name"].value;
+  const currentTemp = e.target["default-temp"].value;
+  const image = e.target["room-image"].files[0];
+  const roomImageUrl = URL.createObjectURL(image);
+
+  const startTime = e.target["start-time"].value || "00:00";
+  const endTime = e.target["end-time"].value || "00:00";
+  const room = new Room(
+    roomName,
+    currentTemp,
+    roomImageUrl,
+    startTime,
+    endTime
+  );
+  rooms.push(room);
+  console.log(`rooms array -->>>`, rooms);
+  roomSelect.innerHTML += `<option value="${roomName}">${roomName}</option>`;
+  roomsSelect.value = roomName;
+  setSelectedRoom(room.name);
+  // setOverlay(room);
+  generateRooms();
+
+  // reset form
+  e.target.reset();
+  modal.style.display = "none";
+});
+
 // error cleared  ------------->>>> exchanged variable naming to match color codes and make UI/UX more intuitive
 // const warmOverlay= `linear-gradient(
 //     to bottom,
@@ -347,7 +447,7 @@ coolBtn.addEventListener("click", () => {
   });
 
   // coolPresetTrigger = !coolPresetTrigger;
-  const coldPreset = room.coldPreset;
+  const coldPreset = room.coldPreset || room.currTemp;
 
   // console.log(coldPreset);
   room.setCurrTemp(coldPreset);
@@ -364,7 +464,7 @@ warmBtn.addEventListener("click", () => {
     return currRoom.name === selectedRoom;
   });
   // warmPresetTrigger = !warmPresetTrigger;
-  const warmPreset = room.warmPreset;
+  const warmPreset = room.warmPreset || room.currTemp;
   room.setCurrTemp(warmPreset);
   setSelectedRoom(room.name);
   generateRooms();
@@ -384,10 +484,11 @@ document.getElementById("close").addEventListener("click", () => {
 
   // error cleared -------------->>>>>>>>> error message shows when input is invalid. However when preset form is closed and reopen, the error message is still set to display
   document.querySelector(".error").style.display = "none";
+  document.querySelector(".timePresetError").style.display = "none";
 });
 
 // handle preset input data
-document.getElementById("save").addEventListener("click", () => {
+document.getElementById("saveTemp").addEventListener("click", () => {
   const coolInput = document.getElementById("coolInput");
   const warmInput = document.getElementById("warmInput");
   const errorSpan = document.querySelector(".error");
@@ -463,6 +564,38 @@ document.getElementById("save").addEventListener("click", () => {
   // warmInput.value = "";
 });
 
+document.querySelector("#saveTime").addEventListener("click", () => {
+  const startTime = document.getElementById("startTime");
+  const endTime = document.getElementById("endTime");
+  const currRoom = rooms.find((room) => room.name === selectedRoom);
+  const timePresetError = document.querySelector(".timePresetError");
+
+  if (startTime.value && endTime.value) {
+    currRoom.startTime = startTime.value;
+    currRoom.endTime = endTime.value;
+
+    timePresetError.style.display = "none";
+  }
+
+  if (!startTime.value && !endTime.value) {
+    timePresetError.textContent = "Preset time required!";
+    timePresetError.style.display = "block";
+    return;
+  } else if (!startTime.value) {
+    timePresetError.textContent = "Start time required!";
+    timePresetError.style.display = "block";
+    return;
+  } else if (!endTime.value) {
+    timePresetError.textContent = "End time required!";
+    timePresetError.style.display = "block";
+    return;
+  }
+
+  startTime.value = "";
+  endTime.value = "";
+
+  generateRooms();
+});
 // Rooms Control
 // Generate rooms
 const generateRooms = () => {
@@ -493,6 +626,10 @@ const generateRooms = () => {
         </div>
     `;
   });
+
+  rooms.every((room) => room.airConditionerOn)
+    ? (document.getElementById("masterToggler").name = "toggle")
+    : (document.getElementById("masterToggler").name = "toggle-outline");
 
   roomsControlContainer.innerHTML = roomsHTML;
 };
@@ -566,3 +703,34 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
   // setSelectedRoom(e.target.parentNode.parentNode.id);
   // }
 });
+
+// Auto toggle aircon
+function autoToggleAircon() {
+  const currentTime = new Date().toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  rooms.forEach((room) => {
+    if (room.startTime == currentTime) {
+      !room.airConditionerOn && room.toggleAircon();
+      generateRooms();
+    } else if (room.endTime == currentTime) {
+      room.airConditionerOn && room.toggleAircon();
+      generateRooms();
+    }
+  });
+}
+
+// set interval to auto toggle aircon
+setInterval(autoToggleAircon, 60000);
+
+// function to set all aircon on
+function toggleAllAircon() {
+  rooms.forEach((room) => {
+    !room.airConditionerOn && room.toggleAircon();
+  });
+  generateRooms();
+}
+
+const masterToggler = document.querySelector("#masterToggler");
+masterToggler.addEventListener("click", toggleAllAircon);
