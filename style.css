@@ -387,12 +387,19 @@ svg.point {
 }
 
 @media only screen and (max-width: 470px) {
+  .logo{
+    font-size: smaller;
+  }
+  div.bars {
+    display: none;
+  }
   .container {
     width: 360px;
   }
 }
 
 @media only screen and (max-width: 380px) {
+
   .container {
     width: 320px;
   }
@@ -491,10 +498,6 @@ input:checked + .toggle-slider:before {
   outline: none;
   border-color: #4a90e2;
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-}
-.time-input {
-  /* Force 24-hour format in browsers that support it */
-  -moz-appearance: textfield;
 }
 
 .time-input::-webkit-datetime-edit-ampm-field {
