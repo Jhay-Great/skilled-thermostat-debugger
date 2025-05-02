@@ -61,12 +61,15 @@ const initializeRooms = () => {
     toggleAircon() {
       this.airConditionerOn = !this.airConditionerOn;
       if (this.airConditionerOn) {
+        this.image = this.image.replace('.jpg', '-ac-on.jpg');
         const action = this.currTemp <= 24 ? "Cooling" : "Warming";
         speak(`${action} ${this.name} to ${this.currTemp}°`);
       } else {
+        this.image = this.image.replace('-ac-on.jpg', '.jpg');
         speak(`${this.name} air conditioning turned off`);
       }
-      generateRooms(); // Force UI update
+      generateRooms();
+      saveRoomsToStorage();
     },
   },
   {
@@ -233,7 +236,8 @@ const setInitialOverlay = () => {
 };
 
 const updateRoomOverlay = (room) => {
-  document.querySelector(".room").style.backgroundImage = `${
+  const roomElement = document.querySelector(".room");
+  roomElement.style.backgroundImage = `${
     room.currTemp < 25 ? coolOverlay : warmOverlay
   }, url('${room.image}')`;
 };
@@ -278,9 +282,11 @@ const setSelectedRoom = (roomName) => {
   
   setIndicatorPoint(room.currTemp);
   document.getElementById("temp").textContent = `${room.currTemp}°`;
-  updateRoomOverlay(room);
   document.querySelector(".room-name").textContent = roomName;
   document.querySelector(".currentTemp").textContent = `${room.currTemp}°`;
+  
+  // Update the room image and overlay
+  updateRoomOverlay(room);
   
   // Update preset button states
   updatePresetButtonStates(room);
@@ -401,8 +407,16 @@ function checkSchedule() {
       } else {
         room.setCurrTemp(room.warmPreset);
       }
+      // Update the room UI if this is the selected room
+      if (room.name === selectedRoom) {
+        updateRoomOverlay(room);
+      }
     } else if (!shouldBeOn && room.airConditionerOn) {
       room.airConditionerOn = false;
+      // Update the room UI if this is the selected room
+      if (room.name === selectedRoom) {
+        updateRoomOverlay(room);
+      }
     }
   });
 
@@ -419,32 +433,37 @@ const generateRooms = () => {
   let roomsHTML = "";
 
   rooms.forEach((room) => {
-   // In generateRooms() function:
-roomsHTML += `
-<div class="room-control" id="${room.name}">
-  <div class="top">
-    <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
-    <button class="switch">
-      <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
-    </button>
-  </div>
-  <div class="time-display">
-    <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
-           value="${room.startTime}" step="3600">
-    <div class="bars">
-      ${Array(32).fill('<span class="bar"></span>').join('')}
-    </div>
-    <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
-           value="${room.endTime}">
-  </div>
-  <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
-    ${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${room.currTemp}°
-  </span>
-</div>`;
+    roomsHTML += `
+    <div class="room-control" id="${room.name}">
+      <div class="top">
+        <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
+        <button class="switch">
+          <ion-icon name="power-outline" class="${room.airConditionerOn ? "powerOn" : ""}"></ion-icon>
+        </button>
+      </div>
+      <div class="time-display">
+        <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
+               value="${room.startTime}" step="3600">
+        <div class="bars">
+          ${Array(32).fill('<span class="bar"></span>').join('')}
+        </div>
+        <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
+               value="${room.endTime}">
+      </div>
+      <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
+        ${room.currTemp > 25 ? "Cooling room to: " : "Warming room to: "}${room.currTemp}°
+      </span>
+    </div>`;
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
   updateMasterToggle();
+  
+  // Make sure the current room's image is up to date
+  const currentRoom = rooms.find(r => r.name === selectedRoom);
+  if (currentRoom) {
+    updateRoomOverlay(currentRoom);
+  }
 };
 const setupTimeInputListeners = () => {
   document.querySelectorAll('.time-input').forEach(input => {
@@ -767,17 +786,17 @@ function addNewRoom(name) {
    * If turned off, speaks an announcement of the room's air conditioning being turned off.
    * Updates the room UI and saves the rooms to local storage.
    */
-    toggleAircon() {
-      this.airConditionerOn = !this.airConditionerOn;
-      if (this.airConditionerOn) {
-        const action = this.currTemp <= 24 ? "Cooling" : "Warming";
-        speak(`${action} ${this.name} to ${this.currTemp}°`, "high");
-      } else {
-        speak(`${this.name} air conditioning turned off`, "low");
-      }
-      generateRooms();
-      saveRoomsToStorage();
+  toggleAircon() {
+    this.airConditionerOn = !this.airConditionerOn;
+    if (this.airConditionerOn) {
+      const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+      speak(`${action} ${this.name} to ${this.currTemp}°`, "high");
+    } else {
+      speak(`${this.name} air conditioning turned off`, "low");
     }
+    generateRooms();
+    saveRoomsToStorage();
+  }
   };
 
   rooms.push(newRoom);
