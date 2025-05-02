@@ -1,16 +1,43 @@
 // Room objects
 const initializeRooms = () => {
+  // Try to load from localStorage first
+  const savedRooms = localStorage.getItem('smartHomeRooms');
+  if (savedRooms) {
+    const parsedRooms = JSON.parse(savedRooms);
+    // Reattach methods to loaded rooms
+    return parsedRooms.map(room => {
+      return {
+        ...room,
+        setCurrTemp(temp) { this.currTemp = temp; },
+        setColdPreset(newCold) { this.coldPreset = newCold; },
+        setWarmPreset(newWarm) { this.warmPreset = newWarm; },
+        decreaseTemp() { this.currTemp--; },
+        increaseTemp() { this.currTemp++; },
+        toggleAircon() {
+          this.airConditionerOn = !this.airConditionerOn;
+          if (this.airConditionerOn) {
+            const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+            speak(`${action} ${this.name} to ${this.currTemp}°`, "high");
+          } else {
+            speak(`${this.name} air conditioning turned off`, "low");
+          }
+          generateRooms();
+          saveRoomsToStorage();
+        }
+      };
+    });
+  }
   const { currentTime, laterTime } = getCurrentTimes();
   return [
-  {
-    name: "Living Room",
-    currTemp: 32,
-    coldPreset: 20,
-    warmPreset: 32,
-    image: "./assets/living-room.jpg",
-    airConditionerOn: false,
-    startTime: '16:30',
-    endTime: '20:00',
+    {
+      name: "Living Room",
+      currTemp: 32,
+      coldPreset: 20,
+      warmPreset: 32,
+      image: "./assets/living-room.jpg",
+      airConditionerOn: false,
+      startTime: '16:30',
+      endTime: '20:00',
 
     setCurrTemp(temp) {
       this.currTemp = temp;
@@ -165,7 +192,23 @@ const initializeRooms = () => {
 ];
 };
 const rooms = initializeRooms();
-
+function saveRoomsToStorage() {
+  // Create a clean object without methods for storage
+  const roomsToSave = rooms.map(room => {
+    return {
+      name: room.name,
+      currTemp: room.currTemp,
+      coldPreset: room.coldPreset,
+      warmPreset: room.warmPreset,
+      image: room.image,
+      airConditionerOn: room.airConditionerOn,
+      startTime: room.startTime,
+      endTime: room.endTime
+      // Only include properties, not methods
+    };
+  });
+  localStorage.setItem('smartHomeRooms', JSON.stringify(roomsToSave));
+}
 
 const warmOverlay =`linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
@@ -242,18 +285,29 @@ const setSelectedRoom = (roomName) => {
 };
 
 // Temperature controls
+// Update temperature change handlers
 const handleTemperatureChange = (changeType) => {
   const room = rooms.find((r) => r.name === selectedRoom);
   
   if (changeType === 'increase' && room.currTemp < 32) {
     room.increaseTemp();
+   speak(`Temperature increased to ${room.currTemp}°`);
   } else if (changeType === 'decrease' && room.currTemp > 10) {
     room.decreaseTemp();
+   speak(`Temperature decreased to ${room.currTemp}°`);
   }
   
   updateRoomUI(room);
+  saveRoomsToStorage(); // Add this line
 };
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Updates the room UI to reflect the current temperature of the given room.
+ *
+ * @param {Object} room The room object to update the UI for.
+ */
+/*******  97a0b6b7-fc67-4517-8e50-1085dd523b23  *******/
 const updateRoomUI = (room) => {
   setIndicatorPoint(room.currTemp);
   document.getElementById("temp").textContent = `${room.currTemp}°`;
@@ -280,6 +334,7 @@ const applyPreset = (presetType) => {
   
   room.setCurrTemp(targetTemp);
   updateRoomUI(room);
+  saveRoomsToStorage(); // Add this line
   
   // Highlight the active preset button
   const coolBtn = document.getElementById("cool");
@@ -301,7 +356,8 @@ const updateSchedule = (roomName, startTime, endTime) => {
     room.startTime = startTime;
     room.endTime = endTime;
     generateRooms();
-    checkSchedule(); // Check schedule immediately after update
+    checkSchedule();
+    saveRoomsToStorage(); // Add this line
   }
 };
 // BUG FIX: Proper time handling
@@ -652,16 +708,16 @@ function speak(text, priority = "low") {
 }
 
 // FEATURE: Enhanced AC toggle with audio
-rooms.forEach(room => {
-  const originalToggle = room.toggleAircon;
-  room.toggleAircon = function() {
-    originalToggle.apply(this);
-    if (this.airConditionerOn) {
-      speak(`${this.name} air conditioning activated`);
-    } else {
-    }
-  };
-});
+// rooms.forEach(room => {
+//   // const originalToggle = room.toggleAircon;
+//   room.toggleAircon = function() {
+//     // originalToggle.apply(this);
+//     if (this.airConditionerOn) {
+//       speak(`${this.name} air conditioning activated`);
+//     } else {
+//     }
+//   };
+// });
 
 // FEATURE: Room creation
 function showAddRoomModal() {
@@ -703,7 +759,23 @@ function addNewRoom(name) {
     setCurrTemp(temp) { this.currTemp = temp; },
     decreaseTemp() { if (this.currTemp > 10) this.currTemp--; },
     increaseTemp() { if (this.currTemp < 32) this.currTemp++; },
-    toggleAircon() { this.airConditionerOn = !this.airConditionerOn; }
+  /**
+   * Toggles the air conditioner on or off.
+   * If turned on, speaks an announcement of the room being cooled or warmed to the current temperature.
+   * If turned off, speaks an announcement of the room's air conditioning being turned off.
+   * Updates the room UI and saves the rooms to local storage.
+   */
+    toggleAircon() {
+      this.airConditionerOn = !this.airConditionerOn;
+      if (this.airConditionerOn) {
+        const action = this.currTemp <= 24 ? "Cooling" : "Warming";
+        speak(`${action} ${this.name} to ${this.currTemp}°`, "high");
+      } else {
+        speak(`${this.name} air conditioning turned off`, "low");
+      }
+      generateRooms();
+      saveRoomsToStorage();
+    }
   };
 
   rooms.push(newRoom);
@@ -711,6 +783,7 @@ function addNewRoom(name) {
   const option = new Option(name, name);
   document.getElementById("rooms").appendChild(option);
   generateRooms();
+  saveRoomsToStorage();
   
   Swal.fire({
     icon: 'success',
@@ -719,6 +792,10 @@ function addNewRoom(name) {
     timer: 1500
   });
 }
+
+// Update toggleAircon in your room initialization
+
+
 
 
 
