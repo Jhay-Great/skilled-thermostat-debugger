@@ -192,6 +192,24 @@ const initializeRooms = () => {
 ];
 };
 const rooms = initializeRooms();
+function saveRoomsToStorage() {
+  // Create a clean object without methods for storage
+  // 
+  const roomsToSave = rooms.map(room => {
+    return {
+      name: room.name,
+      currTemp: room.currTemp,
+      coldPreset: room.coldPreset,
+      warmPreset: room.warmPreset,
+      image: room.image,
+      airConditionerOn: room.airConditionerOn,
+      startTime: room.startTime,
+      endTime: room.endTime
+      // Only include properties, not methods
+    };
+  });
+  localStorage.setItem('smartHomeRooms', JSON.stringify(roomsToSave));
+}
 
 
 const warmOverlay =`linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
