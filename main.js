@@ -155,12 +155,12 @@ function generateRooms() {
         </button>
       </div>
       <div class="time-display">
-        <input type="time" class="time-input" data-room="${room.name}" data-type="start" 
+        <input type="time" class="time-input time-input-1" data-room="${room.name}" data-type="start" 
                value="${room.startTime}" step="3600">
         <div class="bars">
           ${Array(32).fill('<span class="bar"></span>').join('')}
         </div>
-        <input type="time" class="time-input" data-room="${room.name}" data-type="end" 
+        <input type="time" class="time-input time-input-2" data-room="${room.name}" data-type="end" 
                value="${room.endTime}">
       </div>
       <span class="room-status" style="display: ${room.airConditionerOn ? "block" : "none"}">
