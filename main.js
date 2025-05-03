@@ -1,5 +1,3 @@
-// main.js
-// Main application logic for the smart home system
 
 // Import utility functions from pureFunctions.js
 import {
@@ -21,15 +19,15 @@ let selectedRoom = '';
 
 // Initialize the rooms with data
 function initializeRooms() {
-  // Try to load from localStorage first
+// Try to load from localStorage first
   const savedRooms = localStorage.getItem('smartHomeRooms');
   if (savedRooms) {
     const parsedRooms = JSON.parse(savedRooms);
-    // Reattach methods to loaded rooms
+  // Reattach methods to loaded rooms
     return parsedRooms.map(room => createRoomWithMethods(room));
   }
   
-  // Default rooms if no saved data
+// Default rooms if no saved data
   return [
     createRoomWithMethods({
       name: "Living Room",
@@ -73,13 +71,11 @@ function initializeRooms() {
     })
   ];
 }
-
 // Save rooms to localStorage
 function saveRoomsToStorage() {
   const roomsToSave = rooms.map(room => createRoomForStorage(room));
   localStorage.setItem('smartHomeRooms', JSON.stringify(roomsToSave));
 }
-
 // UI update functions
 function setIndicatorPoint(currTemp) {
   const position = calculatePointPosition(currTemp);
@@ -100,7 +96,7 @@ function updateRoomUI(room) {
   updateRoomOverlay(room);
   generateRooms();
   
-  // Reset preset button states when manually changing temp
+// Reset preset button states when manually changing temp
   updatePresetButtonStates(room);
 }
 
@@ -120,7 +116,6 @@ function setInitialOverlay() {
   roomElement.style.backgroundImage = `url('${rooms[0].image}')`;
   updateRoomOverlay(rooms[0]);
 }
-
 // Room selection functions
 function populateRoomSelect() {
   const roomSelect = document.getElementById("rooms");
@@ -142,10 +137,9 @@ function setSelectedRoom(roomName) {
   document.querySelector(".room-name").textContent = roomName;
   document.querySelector(".currentTemp").textContent = `${room.currTemp}°`;
   
-  // Update preset button states
+// Update preset button states
   updatePresetButtonStates(room);
 }
-
 // Generate room controls UI
 function generateRooms() {
   const roomsControlContainer = document.querySelector(".rooms-control");
@@ -178,7 +172,6 @@ function generateRooms() {
   roomsControlContainer.innerHTML = roomsHTML;
   updateMasterToggle();
 }
-
 // Temperature control functions
 function handleTemperatureChange(changeType) {
   const room = rooms.find((r) => r.name === selectedRoom);
@@ -194,7 +187,6 @@ function handleTemperatureChange(changeType) {
   updateRoomUI(room);
   saveRoomsToStorage();
 }
-
 // Preset functions
 function applyPreset(presetType) {
   const room = rooms.find((r) => r.name === selectedRoom);
@@ -204,7 +196,7 @@ function applyPreset(presetType) {
   updateRoomUI(room);
   saveRoomsToStorage();
   
-  // Highlight the active preset button
+// Highlight the active preset button
   const coolBtn = document.getElementById("cool");
   const warmBtn = document.getElementById("warm");
   
@@ -216,7 +208,6 @@ function applyPreset(presetType) {
     coolBtn.style.backgroundColor = '#d9d9d9';
   }
 }
-
 // Schedule functions
 function updateSchedule(roomName, startTime, endTime) {
   const room = rooms.find((r) => r.name === roomName);
@@ -533,7 +524,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   const themeIcon = themeToggle.querySelector('ion-icon');
   const themeText = themeToggle.querySelector('span');
   
-  // Check for saved theme preference or use system preference
   const savedTheme = localStorage.getItem('theme');
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   
@@ -543,7 +533,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
     themeText.textContent = 'Dark';
   }
   
-  // Toggle theme on button click
   themeToggle.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     
@@ -561,8 +550,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   });
   init();
 } );
-
-// Export necessary functions for testing
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeRooms,
