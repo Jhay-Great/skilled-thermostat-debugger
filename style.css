@@ -11,6 +11,11 @@
   --cool-blue: #4458c3;
   --warm-red: #ec6062;
   --accent: #ffd7a8;
+  --green: #5dc570;
+  --light-blue: #c8e0f8;
+  --light-red: #f7d7d7;
+  --orange: #f5a328;
+  --white: #ffffff;
 }
 
 body,
@@ -30,10 +35,22 @@ body {
   justify-content: center;
   align-items: center;
 }
+.master-switch button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+#masterToggler,
+.close-modal {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
 
 .container {
   padding: 30px;
-  background-color: #ffffff;
+  background-color: var(--white);
   border-radius: 8px;
   cursor: pointer;
   width: 450px;
@@ -51,11 +68,43 @@ body {
   align-items: center;
 }
 
+.rooms-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.master-switch {
+  display: flex;
+  align-self: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#masterSwitchLabel {
+  align-items: center;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+#masterToggler {
+  align-self: flex-end;
+  margin-right: 1rem;
+  color: var(--orange);
+}
+
 .top-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0 0 30px 0;
+}
+
+.room-select {
+  display: flex;
+  gap: 10px;
 }
 
 .logo {
@@ -68,6 +117,42 @@ body {
   cursor: pointer;
   outline: none;
   font-weight: 500;
+}
+
+#add-room {
+  display: flex;
+  border: 1px solid var(--accent);
+  border-radius: 20%;
+  background: var(--accent);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0%;
+  justify-content: center;
+  align-items: center;
+}
+
+#add-room:hover {
+  border-radius: 0%;
+}
+
+#add-room:hover::before {
+  content: "Add Room";
+  padding-inline-start: 10px;
+  font-size: 10px;
+  align-self: center;
+  justify-self: center;
+  text-align: center;
+  color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+#add-room ion-icon {
+  padding: 0%;
+  padding-inline: 5px;
+  margin: 0%;
+  font-size: 15px;
 }
 
 .info {
@@ -83,16 +168,13 @@ body {
 
 .temperature {
   position: relative;
-  /* border: solid 2px pink; */
 }
 
 .temperature svg {
-  /* border: solid 1px black; */
   position: absolute;
   left: -100px;
   top: -68px;
   height: 250px;
-  /* margin: 50px 0 50px 0; */
   display: none;
 }
 .indicator {
@@ -101,8 +183,6 @@ body {
 }
 
 svg.point {
-  /* display: none; */
-  /* border: solid 1px pink; */
   position: absolute;
   left: 38px;
   top: 40px;
@@ -155,7 +235,7 @@ svg.point {
   display: flex;
   gap: 10px;
   justify-content: space-between;
-  background-color: #eaeaeb;
+  background-color: var(--bg-light);
 }
 
 .configure {
@@ -166,23 +246,26 @@ svg.point {
   margin: 0 0 20px 0;
   /* border: solid 1px pink; */
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 1rem;
 }
 
-.inputs input {
+.inputs div input {
   padding: 8px 5px;
   width: 100px;
   border: none;
-  background-color: #eaeaeb;
+  background-color: var(--bg-light);
   border-radius: 4px;
   outline: none;
 }
 
-.inputs #save {
+.inputs #saveTemp,
+#saveTime {
   border: none;
-  background-color: var(--cool-blue);
-  color: #ffffff;
+  background-color: var(--green);
+  margin-left: 1rem;
+  color: var(--white);
   font-weight: 500;
   padding: 8px 10px;
   border-radius: 4px;
@@ -190,16 +273,37 @@ svg.point {
 }
 
 .inputs #close {
-  border: none;
-  background: none;
-  font-size: 18px;
+  padding: 0 0.2rem;
+  border-radius: 15px;
+  background-color: #ffae33;
+  color: var(--white);
+  font-size: 1rem;
   cursor: pointer;
+  align-self: flex-end;
+  justify-content: center;
+  display: flex;
+  align-items: center;
 }
 
-.error {
-  color: #ec6062;
+.inputs #close:hover::after {
+  content: "Done";
+  padding-inline-start: 10px;
+  font-size: 10px;
+  align-self: center;
+  justify-self: center;
+  text-align: center;
+  color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.error,
+.timePresetError {
+  color: var(--warm-red);
   text-align: center;
   margin: 10px 0 0 0;
+  font-size: 0.8rem;
 }
 
 #newPreset {
@@ -209,7 +313,7 @@ svg.point {
   cursor: pointer;
   border: none;
   background: none;
-  color: #4458c3;
+  color: var(--cool-blue);
   font-size: 16px;
   font-weight: 500;
   text-decoration: underline;
@@ -237,8 +341,14 @@ svg.point {
   gap: 5px;
 }
 
-#cool:hover,
-#warm:hover,
+#cool:hover {
+  background-color: var(--light-blue);
+}
+
+#warm:hover {
+  background-color: var(--light-red);
+}
+
 #reduce:hover,
 #increase:hover {
   background-color: #c2c2c2;
@@ -263,7 +373,7 @@ svg.point {
 #increase {
   border: none;
   padding: 10px;
-  background-color: #eaeaeb;
+  background-color: var(--bg-light);
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out;
@@ -290,7 +400,7 @@ svg.point {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #ffffff;
+  color: var(--white);
   z-index: 10;
 }
 
@@ -370,12 +480,19 @@ svg.point {
 }
 
 @media only screen and (max-width: 470px) {
+  .main-container {
+    flex-direction: column;
+  }
   .container {
     width: 360px;
   }
 }
 
 @media only screen and (max-width: 380px) {
+  .main-container {
+    flex-direction: column;
+  }
+
   .container {
     width: 320px;
   }
@@ -390,4 +507,155 @@ span.room-status {
   /* border: solid 1px pink; */
   margin: 20px 0 0 0;
   color: #7c7c83;
+}
+
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#modal-form {
+  position: relative;
+  background-color: var(--white);
+  margin: auto;
+  margin-top: 8rem;
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+}
+
+.modal h1 {
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.timeInputs {
+  display: flex;
+  gap: 10%;
+}
+
+.timeInputs input {
+  width: 50%;
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #95a5a6;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+  color: #e74c3c;
+  text-decoration: none;
+}
+
+#room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#room-form input {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background-color: #f9f9f9;
+}
+
+#room-form input:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px var(--accent);
+  background-color: var(--white);
+}
+
+#room-form input::placeholder {
+  color: #bdc3c7;
+}
+
+#room-form input[type="file"] {
+  padding: 10px;
+  background-color: transparent;
+}
+
+#modal-save {
+  background-color: var(--text-primary);
+  color: var(--white);
+  width: 30%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  align-self: center;
+}
+
+#modal-save:hover {
+  background-color: var(--green);
+}
+
+@keyframes animatetop {
+  from {
+    opacity: 0;
+    top: -300px;
+  }
+  to {
+    opacity: 1;
+    top: 0;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .main-container {
+    flex-direction: column;
+  }
+
+  #modal-form {
+    padding: 30px 20px;
+  }
+
+  .modal h1 {
+    font-size: 20px;
+  }
+
+  #room-form input {
+    padding: 10px 12px;
+  }
+
+  #modal-save {
+    padding: 10px;
+  }
 }
